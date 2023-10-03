@@ -15,14 +15,14 @@ msg_params () {
 
 if [ $# -lt 3 ]
 then
-        echo
-        echo "Недостаточно параметров. Нужно три!"
+        echo 
+	echo "Недостаточно параметров. Нужно три!"
         msg_params
         exit 0
 elif [ $# -gt 3 ]
 then
         echo
-        echo "Слишком много параметров. Нужно три!"
+	echo "Слишком много параметров. Нужно три!"
         msg_params
         exit 0
 fi
@@ -40,12 +40,12 @@ if [ ${current_count} -gt ${depth} ]
 then
         let count=${current_count}-${depth}
 
-        # Без двойных ковычек многострочные ${current_list} и $victims канкатенируют в одну строку
+        # Без двойных ковычек многострочные $current_list и $victims канкатенируют в одну строку
         victims=`echo "${current_list}" | tail -${count}`
 
 
         for LINE in `echo "${victims}"`
         do
-            rm -rf "${base_dir}/$LINE"
+            rm -rf "${base_dir}/${LINE}"
         done
 fi
