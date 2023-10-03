@@ -43,7 +43,6 @@ then
         # Без двойных ковычек многострочные $current_list и $victims канкатенируют в одну строку
         victims=`echo "${current_list}" | tail -${count}`
 
-
         for LINE in `echo "${victims}"`
         do
             rm -rf "${base_dir}/${LINE}"
