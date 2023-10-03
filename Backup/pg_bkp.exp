@@ -1,0 +1,20 @@
+#!/usr/bin/expect
+#
+# Делает интерактивный логин в PG и дампит базу
+# Нужен скорее как болванка для работы с expect
+#
+# Для удобства: ./pg_bkp.exp username password dbname ./
+#
+
+set username [ lindex $argv 0 ];		# postgres
+set password [ lindex $argv 1 ];		# postgres
+set db_name  [ lindex $argv 2 ];		# postgres
+set bkp_dir  [ lindex $argv 3 ];		# ./
+
+set dt       [ exec date "+%F" ];		# 2023-10-03
+
+spawn pg_dump -h localhost -U ${username} --compress=9 "${db_name}" --file="${bkp_dir}/${db_name}_${dt}.tgz"
+expect "Пароль:"
+send "${password}\r"
+
+interact
