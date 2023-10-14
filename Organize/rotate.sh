@@ -4,7 +4,7 @@
 
 msg_params () {
         echo
-        echo "Использование: rotate <path> <filter> <depth>, где:"
+        echo "Использование: $0 <path> <filter> <depth>, где:"
         echo "  <path>   - путь по которому следует производить отбор"
         echo "  <filter> - шаблон для отбора удаляемых файлов"
         echo "             чтобы его не съел shell - используйте одинарные ковычки."
@@ -15,14 +15,14 @@ msg_params () {
 
 if [ $# -lt 3 ]
 then
-        echo 
-	echo "Недостаточно параметров. Нужно три!"
+        echo
+        echo "Недостаточно параметров. Нужно три!"
         msg_params
         exit 0
 elif [ $# -gt 3 ]
 then
         echo
-	echo "Слишком много параметров. Нужно три!"
+        echo "Слишком много параметров. Нужно три!"
         msg_params
         exit 0
 fi

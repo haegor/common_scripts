@@ -58,7 +58,7 @@ function find_and_fix () {
 function find_and_report () {
   analyzed_dir=$1
 
-  find -H "${analyzed_dir}" -type l -print |  while read LINE
+  find -H "${analyzed_dir}" -type l -print | while read LINE
   do
     if [ -h "${LINE}" ] && [ ! -r "${LINE}" ]
     then
@@ -70,7 +70,7 @@ function find_and_report () {
 function remove_link_to () {
   analyzed_dir=$1
 
-  find -H "${analyzed_dir}" -type l -print |  while read LINE
+  find -H "${analyzed_dir}" -type l -print | while read LINE
   do
     # && [ -r "${LINE}" ]
     if [ -h "${LINE}" ] && [[ "${LINE}" =~ 'Ссылка на ' ]]
@@ -94,14 +94,14 @@ case $1 in
   enought $# 2
   find_and_report "$2"
 ;;
-'remove_link_to')
+'remove_link_to') #
   enought $# 2
   remove_link_to "$2"
 ;;
-'test')
+'test') #
   normalize_path $2
 ;;
-'fix_links_script')
+'fix_links_script') #
   find . -type l | while read LINK
   do
     #result=$(realpath "${LINK}" 1>/dev/null 2>/dev/null && echo 0 || echo 1)
