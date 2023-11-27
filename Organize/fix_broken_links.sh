@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Скрипт для массового исправления битых ссылок появляющихся при перемещении каталогов.
+#
 
 # Проверяет достаточно ли аргументов.
 # Функция сомнительной полезности. Планировалась под вывод хелпа.
@@ -28,6 +31,7 @@ function normalize_path () {
 	fi
 }
 
+# Ищет ссылки, проверяет на битость и если найден всего 1 вариант - делает автозамену
 function find_and_fix () {
   analyzed_dir=$(normalize_path "$1")
   analyzed_dir_len=${#analyzed_dir}
@@ -44,17 +48,26 @@ function find_and_fix () {
       echo "Имя файла: ${filename}"
 		
       founded=$(find "${storage_dir}" -not -path "${analyzed_dir}/*" -type f -name "${filename}" -print -quit )
-      echo "Нaйденный: ${founded}"
-
-      #if [ $(echo ${founded} | wc -l) -lt 1 ]
-#	then
-  	  echo rm "${analyzed_dir}/${filename}"
-	    echo ln -s "${founded}" "${analyzed_dir}/"
-#	fi
+      if [ "${founded}" == '' ]
+      then 
+	     echo "Вариантов не найдено"
+	     continue
+      else
+             echo "Нaйден: ${founded}"
       fi
+
+      # TODO: проверить на поведение при нескольких найденных вариантах и вариантах с пробелами
+      if [ $(echo ${founded} | wc -l) -eq 1 ] 
+      # && [ ! "${founded}" == '' ] - пустые варианты мы убрали на стадии отображения предварительных результатов
+      then
+        echo rm "${analyzed_dir}/${filename}"
+        echo ln -s "${founded}" "${analyzed_dir}/"
+      fi
+    fi
   done
 }
 
+# Просто выводит битые ссылки в указанном каталоге
 function find_and_report () {
   analyzed_dir=$1
 
@@ -67,6 +80,7 @@ function find_and_report () {
   done
 }
 
+# Убирает приписку "Ссылка на " из имён ссылок.
 function remove_link_to () {
   analyzed_dir=$1
 
