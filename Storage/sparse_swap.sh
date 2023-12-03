@@ -32,13 +32,14 @@ file_tpl='./volume_'
 cache_file='./volume_cache'
 
 volsize=512
+volcount=5		#ВАЖНО: volcount не может быть больше 7и.
 
 case $1 in
 'create')		# Создать файлы, подключить, собрать в RAID, натянуть VG и LV, создать своп, включить его.
-  for i in `seq 1 5`
+  for i in `seq 1 ${volcount}`
   do
     volume_file="${file_tpl}${i}"
-    [ ${i} -eq 5 ] && volume_file="${cache_file}"
+    [ ${i} -eq ${volcount} ] && volume_file="${cache_file}"
 
     echo "===== ${volume_file} ========================================================================"
 
@@ -53,11 +54,11 @@ case $1 in
     then
       ${pvcreate} "${loop_file}" && echo "----- pvcreate completed"
       ${vgcreate} ${groupname} "${loop_file}" && echo "----- vgcreate completed"
-    elif [ ${i} -lt 5 ] && [ ${i} -gt 1 ]
+    elif [ ${i} -lt ${volcount} ] && [ ${i} -gt 1 ]
     then
       ${pvcreate} "${loop_file}" && echo "----- pvcreate competed"
       ${vgextend} ${groupname} "${loop_file}" && echo "----- vgextend completed"
-    elif [ ${i} -eq 5 ]
+    elif [ ${i} -eq ${volcount} ]
     then
       ${lvcreate} --type raid1 -l 100%FREE -n ${volumename} ${groupname} && echo "----- lvcreate completed"
       ${vgextend} ${groupname} "${loop_file}" && echo "----- vgextend completed"
@@ -72,11 +73,11 @@ case $1 in
 'attach')		# TODO: Собрать logicalVolume из созданных ранее файлов
   echo empty
 ;;
-'remove')		# Удалить logicalVolume
+'remove'|'rm')		# Удалить logicalVolume
   ${lvremove} ${groupname}/${volumename}
 ;;
 'detach')		# Отключить loop-устройства. Возможно только после удаления logicalVolume
-  for i in `seq 1 5`
+  for i in `seq 1 ${volcount}`
   do
     ${losetup} --detach /dev/loop${i}
   done
