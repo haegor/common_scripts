@@ -23,6 +23,7 @@ lvconvert='sudo lvconvert'
 losetup='sudo losetup'
 mkswap='sudo mkswap'
 swapon='sudo swapon'
+swapoff='sudo swapoff'
 
 volumename='volname'
 groupname='groupname'
@@ -30,6 +31,7 @@ cachevol='cache_volume'
 
 file_tpl='./volume_'
 cache_file='./volume_cache'
+devmapper_file="/dev/mapper/${groupname}-${volumename}"
 
 volsize=512
 volcount=5		#ВАЖНО: volcount не может быть больше 7и.
@@ -67,13 +69,18 @@ case $1 in
     fi
   done
 
-  ${mkswap} /dev/mapper/${groupname}-${volumename}
-  ${swapon} /dev/mapper/${groupname}-${volumename}
+  ${mkswap} "${devmapper_file}"
+  ${swapon} "${devmapper_file}"
 ;;
 'attach')		# TODO: Собрать logicalVolume из созданных ранее файлов
   echo empty
 ;;
-'remove'|'rm')		# Удалить logicalVolume
+'remove'|'rm')		# Отцепит swap и удалит его logicalVolume
+  inode=$(stat -L -c %i ${devmapper_file}) 		# без -L будет inode ссылки, которая тоже файл
+  dm_file=$(sudo find /dev/ -maxdepth 1 -inum ${inode})
+
+  [ ! "$(${swapon}  | grep ${dm_file})" == '' ] && ${swapoff} "${devmapper_file}" && echo "swapoff ${devmapper_file} прошёл успешно"
+
   ${lvremove} ${groupname}/${volumename}
 ;;
 'detach')		# Отключить loop-устройства. Возможно только после удаления logicalVolume
@@ -82,11 +89,20 @@ case $1 in
     ${losetup} --detach /dev/loop${i}
   done
 ;;
-'look')			# Посмотреть что получилось
+'swapon')
+  ${mkswap} "${devmapper_file}"
+  ${swapon} "${devmapper_file}"
+;;
+'look'|'ls')			# Посмотреть что получилось
+  echo "--- losetup ---"
   ${losetup}
-  sudo pvs
-  sudo lvs
-  sudo vgs
+
+  echo "--- LVS ---"
+  sudo lvs 2>/dev/null | grep -P "${volumename}|LV"
+  echo "--- VGS ---"
+  sudo vgs 2>/dev/null | grep -P "${groupname}|VG"
+  echo "--- PVS ---"
+  sudo pvs 2>/dev/null | grep -P "${groupname}|PV"
 ;;
 '--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
