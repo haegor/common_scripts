@@ -9,4 +9,4 @@ password=$2
 db_name=$3
 db_sql=$4
 
-mysql -u ${username} --database=${db_name} -p"${password}" < ${db_sql}
+mysql -u ${username} --database=${db_name} -p"${password}" < "${db_sql}"

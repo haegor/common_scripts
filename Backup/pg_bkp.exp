@@ -5,6 +5,8 @@
 #
 # Для удобства: ./pg_bkp.exp username password dbname ./
 #
+# 2023 (c) haegor
+#
 
 set username [ lindex $argv 0 ];		# postgres
 set password [ lindex $argv 1 ];		# postgres
