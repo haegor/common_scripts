@@ -35,9 +35,16 @@ template="$2"
 depth="$3"
 
 # Ключ -t - наша защита от неправильной сортировки дат. К примеру для американского формата: DD-MM-YYYY
-# А ещё это избавило нас от `sort -u`
+# А ещё это избавило нас от использования `sort -u`
 current_list=`ls -t "${base_dir}" | grep -P "${template}"`
 current_count=`echo "${current_list}" | wc -l`
+
+# Защита от дурака
+if [ -n "$base_dir" ] || [ "$base_dir" == "/" ]
+then
+    echo "Останров: потенциальное удаление корня файловой системы."
+    exit 1
+fi
 
 if [ ${current_count} -gt ${depth} ]
 then
