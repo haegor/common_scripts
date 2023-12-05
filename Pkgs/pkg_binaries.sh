@@ -17,7 +17,7 @@
 # sys	0m0,024s
 #
 
-[ ! -n $1 ] && pkg=$1 || pkg=virtualbox
+[ "$1" ] && pkg=$1 || pkg=virtualbox
 
 while read i
 do
