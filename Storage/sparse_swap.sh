@@ -10,6 +10,9 @@
 # Hint: чтобы продолжать пользоваться скриптом оставьте на месте файлов
 # софт-ссылки.
 #
+# TODO: ВАЖНО: при написании скрипта подразумевалось что все loop устройства не
+# заняты. Проверок на их наличие нет.
+#
 # 2023 (c) haegor
 #
 
@@ -38,7 +41,7 @@ volcount=5		#ВАЖНО: volcount не может быть больше 7и.
 
 case $1 in
 'create')		# Создать файлы, подключить, собрать в RAID, натянуть VG и LV, создать своп, включить его.
-  for i in `seq 1 ${volcount}`
+  for i in `seq 0 ${volcount}`
   do
     volume_file="${file_tpl}${i}"
     [ ${i} -eq ${volcount} ] && volume_file="${cache_file}"
@@ -79,12 +82,12 @@ case $1 in
   inode=$(stat -L -c %i ${devmapper_file}) 		# без -L будет inode ссылки, которая тоже файл
   dm_file=$(sudo find /dev/ -maxdepth 1 -inum ${inode})
 
-  [ ! "$(${swapon}  | grep ${dm_file})" == '' ] && ${swapoff} "${devmapper_file}" && echo "swapoff ${devmapper_file} прошёл успешно"
+  [ ! "$(${swapon} | grep ${dm_file})" == '' ] && ${swapoff} "${devmapper_file}" && echo "swapoff ${devmapper_file} прошёл успешно"
 
   ${lvremove} ${groupname}/${volumename}
 ;;
 'detach')		# Отключить loop-устройства. Возможно только после удаления logicalVolume
-  for i in `seq 1 ${volcount}`
+  for i in `seq 0 ${volcount}`
   do
     ${losetup} --detach /dev/loop${i}
   done
