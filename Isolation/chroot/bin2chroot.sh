@@ -10,6 +10,9 @@
 default_dir='./work_dir/'
 default_binary="$(which bash)"
 
+cp='sudo cp'
+mkdir='sudo mkdir'
+
 ##### bin arguments ############################################################
 if [ "$1" ]
 then
@@ -44,11 +47,11 @@ then
       exit 0
     else				# Что-то не существующее
       target_dir="$2"			
-      [ ! -d "${target_dir}" ] && mkdir -p "${target_dir}"
+      [ ! -d "${target_dir}" ] && ${mkdir} -p "${target_dir}"
     fi
 else
     target_dir="${default_dir}"		# default
-    [ ! -d "${target_dir}" ] && mkdir -p "${target_dir}"
+    [ ! -d "${target_dir}" ] && ${mkdir} -p "${target_dir}"
 fi
 
 ##### other arguments ##########################################################
@@ -91,7 +94,7 @@ f_parse_dep_line () {
 }
 
 f_copy_bin () {
-  cp --parents --update "$1" "${target_dir}"
+  ${cp} --parents --update "$1" "${target_dir}"
 }
 
 # Вот за такие вещи я и недолюбливаю bash. Обходим некрасивости его

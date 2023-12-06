@@ -11,6 +11,10 @@
 # 2023 (c) haegor
 #
 
+cp='sudo cp'
+mkdir='sudo mkdir'
+dpkg='sudo dpkg'
+
 [ "$1" ] && pkg="$1" || pkg='coreutils'
 [ "$2" ] && target_dir="$2" || target_dir='./work_dir'
 if [ "$3" ]
@@ -22,18 +26,18 @@ fi
 bin2chroot='./bin2chroot.sh'
 
 f_file_copy () {
-  cp --parents --dereference --update "$1" "${target_dir}"
+  ${cp} --parents --dereference --update "$1" "${target_dir}"
 }
 
 f_link_copy () {
-  cp --parents --no-dereference "$1" "${target_dir}"
+  ${cp} --parents --no-dereference "$1" "${target_dir}"
 }
 
 while read i
 do
     if [ -d "${i}" ]
     then
-	mkdir -p "${target_dir}/${i}" && \
+	${mkdir} -p "${target_dir}/${i}" && \
             echo "Создана директория: ${i}"
 	continue
     fi
@@ -71,4 +75,4 @@ do
     f_file_copy "${i}" && \
 	echo "Скопирован файл: ${i}"
 
-done < <(sudo dpkg -L "${pkg}")
+done < <(${dpkg} -L "${pkg}")

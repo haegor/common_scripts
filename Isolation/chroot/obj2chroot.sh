@@ -5,6 +5,8 @@
 # 2023 (c) haegor
 #
 
+cp='sudo cp'
+
 if [ "$1" ]
 then
     if [ -f "$1" ] || [ -d "$1" ] || [ -L "$1" ]
@@ -26,4 +28,4 @@ else
     work_dir="./work_dir"
 fi
 
-cp --recursive --parents "$copy_obj" "${work_dir}"
+${cp} --recursive --parents "$copy_obj" "${work_dir}"
