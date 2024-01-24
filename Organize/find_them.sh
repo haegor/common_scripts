@@ -19,12 +19,7 @@
 # 2023 (c) haegor
 #
 
-if [ $1 ]
-then
-  target_dir=$1
-else
-  echo
-  echo "Необходимо указать хотя бы целевую папку."
+help_msg () {
   echo
   echo "Полный формат таков:"
   echo "  $0 <целевая папка> [<директория с категориями>]"
@@ -32,10 +27,37 @@ else
   echo "Если второй параметр не указан, то будет использована дочерняя подпапка"
   echo "по умолчанию ('./By name')"
   echo
+}
+
+if [ $1 ]
+then
+  if [ ! -d ${target_dir} ]
+  then
+    echo
+    echo "Указанной папки не существует!"
+    help_msg
+    exit 0
+  fi
+
+  target_dir=$1
+
+else
+  echo
+  echo "Необходимо указать целевую папку!"
+  help_msg
   exit 0
 fi
 
+
 [ $2 ] && categories_dir=$2 || categories_dir="${target_dir}/By name"
+
+if [ ! -d "${categories_dir}" ]
+then
+  echo
+  echo "Папки с категориями не существует!"
+  help_msg
+  exit 0
+fi
 
 excluded_tpl='0_!_*'
 app_subdir='__appearancies__'
