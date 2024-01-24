@@ -20,17 +20,17 @@ function enought () {
 
 # Если в пути последний символ - слеш, то отрезает его.
 function normalize_path () {
-	first=$1
-	first_len=${#1}
+    first=$1
+    first_len=${#1}
 
-	#D echo "path of ${first}, начиная с $first_len: ${first:${first_len}-1}"
+    #D echo "path of ${first}, начиная с $first_len: ${first:${first_len}-1}"
 
-	if [ "${first:${first_len}-1}" == '/' ]
-	then
-		echo ${first:0:${first_len}-1}
-	else
-		echo ${first}
-	fi
+    if [ "${first:${first_len}-1}" == '/' ]
+    then
+        echo ${first:0:${first_len}-1}
+    else
+        echo ${first}
+    fi
 }
 
 # Ищет ссылки, проверяет на битость и если найден всего 1 вариант - делает автозамену
@@ -48,14 +48,14 @@ function find_and_fix () {
 
       filename=${LINE:${analyzed_dir_len}+1}
       echo "Имя файла: ${filename}"
-		
+
       founded=$(find "${storage_dir}" -not -path "${analyzed_dir}/*" -type f -name "${filename}" -print -quit )
       if [ "${founded}" == '' ]
-      then 
-	     echo "Вариантов не найдено"
-	     continue
+      then
+         echo "Вариантов не найдено"
+         continue
       else
-             echo "Нaйден: ${founded}"
+         echo "Нaйден: ${founded}"
       fi
 
       # TODO: проверить на поведение при нескольких найденных вариантах и вариантах с пробелами
