@@ -49,5 +49,16 @@ case $1 in
   echo "--- PVS ---"
   sudo pvs 2>/dev/null | grep -P "${groupname}|PV"
 ;;
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
+  echo
+  echo "Недостаточно параметров или они неверно указаны."
+  echo
+  echo "$0 <create|detach|look|help>"
+  echo "В качестве параметра скрипта указывается его режим."
+  echo
+  echo "Перечень режимов:"
+  grep -P "^\'[[:graph:]]*\'\)[[:space:]]*#?.*$" $0 | grep -v 'excluder'
+  echo
+  exit 0
 esac
 

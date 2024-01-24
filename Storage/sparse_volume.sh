@@ -64,7 +64,7 @@ case $1 in
     ${losetup} --detach /dev/loop${i}
   done
 ;;
-'look')			# Посмотреть что получилось
+'look'|'ls')		# Посмотреть что получилось
   echo "--- losetup ---"
   ${losetup}
 
@@ -79,7 +79,7 @@ case $1 in
   echo
   echo "Недостаточно параметров или они неверно указаны."
   echo
-  echo "$0 <create|remove|detach|look>"
+  echo "$0 <create|remove|detach|look|help>"
   echo "В качестве параметра скрипта указывается его режим."
   echo
   echo "Перечень режимов:"

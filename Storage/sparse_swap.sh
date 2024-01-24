@@ -96,7 +96,7 @@ case $1 in
   ${mkswap} "${devmapper_file}"
   ${swapon} "${devmapper_file}"
 ;;
-'look'|'ls')			# Посмотреть что получилось
+'look'|'ls')		# Посмотреть что получилось
   echo "--- losetup ---"
   ${losetup}
 
@@ -111,7 +111,7 @@ case $1 in
   echo
   echo "Недостаточно параметров или они неверно указаны."
   echo
-  echo "$0 <create|remove|detach|look>"
+  echo "$0 <create|remove|detach|look|help>"
   echo "В качестве параметра скрипта указывается его режим."
   echo
   echo "Перечень режимов:"
