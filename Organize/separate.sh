@@ -14,14 +14,14 @@ FNM_EXTMATCH=true
 case $1 in
 'match'|'move'|'md5-sum'|'md5-file')
     [ ! "$2" ] && \
-	    echo && \
-	    echo "Недостаточно параметров!" && \
-	    $0 --help && \
-	    exit 0
+      echo && \
+      echo "Недостаточно параметров!" && \
+      $0 --help && \
+      exit 0
     # TODO: такой шаблон имеет недостаток - файл не может начинаться с $2
     [ "$2" ] && \
-	    pattern="*$2*"
-#	    pattern="*?(._-)$2?(._-)*"
+      pattern="*$2*"
+#      pattern="*?(._-)$2?(._-)*"
 ;;
 esac
 
@@ -38,13 +38,16 @@ case $1 in
     # по умолчанию mv перезаписывает файлы без спроса, т.е. активирован force-режим. Это можно изменить запросив интерактив: -i
     # Но так сортировка затянется, поэтому я автоматом переименовываю файлы. -i нужен сугубо для отладки.
     # TODO
-    find . -iname "${pattern}" -type f -exec bash -c 'BN=$(basename "{}"); if [ -f "${to_dir}/${BN}" ]; then mv -i "{}" "${to_dir}/${BN}_+1"; else mv -i "{}" "${to_dir}/"; fi' \;
+    find . -iname "${pattern}" -type f -exec \
+      bash -c 'BN=$(basename "{}"); if [ -f "${to_dir}/${BN}" ]; then mv -i "{}" "${to_dir}/${BN}_+1"; else mv -i "{}" "${to_dir}/"; fi' \;
 ;;
 'md5-sum')		# Вычислить md5, сортировать по md5
-    find . -iname "${pattern}" -exec bash -c 'BN=$(basename "{}"); md5=$(md5sum "{}" | cut -f1 -d" "); echo "$md5 - $BN - {}"' \; | sort
+    find . -iname "${pattern}" -exec \
+      bash -c 'BN=$(basename "{}"); md5=$(md5sum "{}" | cut -f1 -d" "); echo "$md5 - $BN - {}"' \; | sort
 ;;
 'md5-file')		# Вычислить md5, сортировать по именам файлов
-    find . -iname "${pattern}" -exec bash -c 'BN=$(basename "{}"); md5=$(md5sum "{}" | cut -f1 -d" "); echo "$BN - $md5 - {}"' \; | sort
+    find . -iname "${pattern}" -exec \
+      bash -c 'BN=$(basename "{}"); md5=$(md5sum "{}" | cut -f1 -d" "); echo "$BN - $md5 - {}"' \; | sort
 ;;
 '--help'|'-help'|'help'|'-h'|*|'') # Автопомощь. Мы тут.
   echo
