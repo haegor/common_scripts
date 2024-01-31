@@ -97,7 +97,7 @@ case $mode in
   f_restore_settings "${chosen_path}" "${chosen_file}"
   echo "Операция восстановления завершена."
 ;;
-''|*|'--help'|'-h'|'help')	# Помощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
 
   if [ ${#reason[*]} -eq 0 ]

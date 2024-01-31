@@ -5,6 +5,8 @@
 #
 # 2023 (c) haegor
 #
+# TODO: универсализировать задание почтовых адресов
+#
 
 mail_to='haegor@haegor.ru'
 mail_from='cart_update@haegor.ru'
@@ -44,7 +46,7 @@ case $1 in
 'crt'|'pem')	# Проверка истечения срока годности для crl и pem файлов
     expiration_date=$(openssl x509 -text -in "${target_file}" | egrep "Not After" | awk -F" : " '{ print $2 }')
 ;;
-''|'*'|'--help'|'-h'|'help')	# Помощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Параметры:"
   echo "$0 {crl|[crt,pem]} <имя файла> <предел дней>"
@@ -77,3 +79,4 @@ if [ ${difference_days} -le ${limit} ]; then
     echo "$1-file ${target_file} will be expired at ${expiration_date}. There is ${difference_days} last." | \
     mail -s "Cryptografic files expiration time" -r "${mail_from}" "${mail_to}"
 fi
+

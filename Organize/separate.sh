@@ -49,7 +49,7 @@ case $1 in
     find . -iname "${pattern}" -exec \
       bash -c 'BN=$(basename "{}"); md5=$(md5sum "{}" | cut -f1 -d" "); echo "$BN - $md5 - {}"' \; | sort
 ;;
-'--help'|'-help'|'help'|'-h'|*|'') # Автопомощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Недостаточно параметров или они неверно указаны."
   echo
@@ -64,3 +64,4 @@ case $1 in
   exit 0
 ;;
 esac
+

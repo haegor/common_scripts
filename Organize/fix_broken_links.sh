@@ -129,7 +129,7 @@ case $1 in
     fi
   done
 ;;
-'--help'|'-help'|'help'|'-h'|'*'|'') # Помощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Недостаточно параметров"
   echo "Первый параметр - тип задачи: fix, find, help"
@@ -140,3 +140,4 @@ case $1 in
   exit 0
 ;;
 esac
+

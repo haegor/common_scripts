@@ -86,7 +86,7 @@ case $1 in
 	${slapadd} -n 2 -l "${restorable_bkp}"
 	${systemctl} start slapd
 ;;
-''|'*'|'--help'|'-h'|'help')	# Помощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Параметры:"
   echo "$0 <действие> [<файл>]"
