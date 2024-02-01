@@ -5,21 +5,31 @@
 # 2023 (c) haegor
 #
 
+#rm='echo rm'
+#ln='echo ln'
+#mv='echo mv'
+rm='rm'
+ln='ln'
+mv='mv'
+
 # Проверяет достаточно ли аргументов.
 # Функция сомнительной полезности. Планировалась под вывод хелпа.
-function enought () {
+function f_enought () {
   param_count=$1
   need_count=$2
 
   if [ ${param_count} -ne ${need_count} ]
   then
+    echo
+    echo "Недостаточно параметров"
+    echo "Первый параметр - тип задачи."
     $0 -help
     exit 0
   fi
 }
 
 # Если в пути последний символ - слеш, то отрезает его.
-function normalize_path () {
+function f_normalize_path () {
     first=$1
     first_len=${#1}
 
@@ -34,7 +44,7 @@ function normalize_path () {
 }
 
 # Ищет ссылки, проверяет на битость и если найден всего 1 вариант - делает автозамену
-function find_and_fix () {
+function f_find_and_fix () {
   analyzed_dir=$(normalize_path "$1")
   analyzed_dir_len=${#analyzed_dir}
   storage_dir=$(normalize_path "$2")
@@ -62,65 +72,77 @@ function find_and_fix () {
       if [ $(echo ${founded} | wc -l) -eq 1 ]
       # && [ ! "${founded}" == '' ] - пустые варианты мы убрали на стадии отображения предварительных результатов
       then
-        echo rm "${analyzed_dir}/${filename}"
-        echo ln -s "${founded}" "${analyzed_dir}/"
+        $rm "${analyzed_dir}/${filename}"
+        $ln -s "${founded}" "${analyzed_dir}/"
       fi
     fi
   done
 }
 
 # Просто выводит битые ссылки в указанном каталоге
-function find_and_report () {
+function f_find_and_report () {
   analyzed_dir=$1
 
   find -H "${analyzed_dir}" -type l -print | while read LINE
   do
     if [ -h "${LINE}" ] && [ ! -r "${LINE}" ]
     then
-      echo "Битая ссылка на ${LINE}"
+      echo "-------------"
+      echo "Битая ссылка: ${LINE}"
+      echo "Ссылается на: $(realpath ${LINE})"
     fi
   done
 }
 
-# Убирает приписку "Ссылка на " из имён ссылок.
-function remove_link_to () {
-  analyzed_dir=$1
+function f_truncate_link_name () {
+  local LINE="$1"
 
+  if [ -L "${LINE}" ] &&  [[ "${LINE}" =~ 'Ссылка на ' ]]
+  then
+    local base_name=$(basename "${LINE}")
+    local dir_name=$(dirname "${LINE}")
+    local trunc_name=${base_name:10}
+    local new_name="${dir_name}/${trunc_name}"
+    $mv "${LINE}" "${new_name}"
+  fi
+}
+
+# Убирает приписку "Ссылка на " из имён ссылок.
+function f_remove_link_to () {
+  analyzed_dir=$1
+  
+  # В случае если нам указали на конкретный файл. Для запуска из скрипта
+  LINE="${analyzed_dir}"
+  f_truncate_link_name "${LINE}"
+
+  # Это на случай когда указана директория.
   find -H "${analyzed_dir}" -type l -print | while read LINE
   do
     # && [ -r "${LINE}" ]
-    if [ -h "${LINE}" ] && [[ "${LINE}" =~ 'Ссылка на ' ]]
-    then
-      base_name=$(basename "${LINE}")
-      dir_name=$(dirname "${LINE}")
-      trunc_name=${base_name:10}
-      new_name="${dir_name}/${trunc_name}"
-      mv "${LINE}" "${new_name}"
-    fi
+    f_truncate_link_name "${LINE}"
   done
 }
 
 ######################### MAIN #########################
 case $1 in
-'fix') # Найти битые ссылки в папке1 и заменить их на похожие имена в папке2
-  enought $# 3
-  find_and_fix "$2" "$3"
+'fix')                    # Найти битые ссылки в папке1 и заменить их на похожие имена в папке2
+  f_enought $# 3
+  f_find_and_fix "$2" "$3"
 ;;
-'find') # Поиск битых ссылок в папке
-  enought $# 2
-  find_and_report "$2"
+'find')                   # Поиск битых ссылок в указанной папке
+  f_enought $# 2
+  f_find_and_report "$2"
 ;;
-'remove_link_to') #
-  enought $# 2
-  remove_link_to "$2"
+'remove_link_to')  # убрать фразу "Ссылка на" у всех ссылок в директории
+  f_enought $# 2
+  f_remove_link_to "$2"
 ;;
-'test') #
-  normalize_path "$2"
+'test') #                 # excluder
+  f_normalize_path "$2"
 ;;
-'fix_links_script') #
+'fix_links_script')       # не помню что и зачем. 
   find . -type l | while read LINK
   do
-    #result=$(realpath "${LINK}" 1>/dev/null 2>/dev/null && echo 0 || echo 1)
     result=$(realpath "${LINK}" &>/dev/null && echo 0 || echo 1)
     if [ ${result} ]
     then
@@ -129,10 +151,7 @@ case $1 in
     fi
   done
 ;;
-'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
-  echo
-  echo "Недостаточно параметров"
-  echo "Первый параметр - тип задачи: fix, find, help"
+'help'|'--help'|'-help'|'-h'|''|*)	# Автопомощь. Мы тут.
   echo
   echo "Перечень доступных опций:"
   grep -P "^\'[[:graph:]]*\'\)[[:space:]]*#?.*$" $0 | grep -v 'excluder'
