@@ -2,8 +2,6 @@
 #
 # Скрипт исполняется на ссылке меняя её местами с файлом, на который она ссылается
 # Предназначен для запуска через меню Caja
-# Для установки надо сделать что-то вроде
-# ln -s ~/dev/scripts/Caja/ ~/.config/caja/scripts
 #
 # 2024 (c) haegor
 #
@@ -45,10 +43,10 @@ do
 
   #адрес, куда он указывает
   target_file=$(realpath "$1")
-  
+
   $rm "$current_link" >> ${tmp_file}
   $mv "$target_file" "$current_link" >> ${tmp_file}
   $ln -s "$current_link" "$target_file" >> ${tmp_file}
 
   shift
-done 
+done
