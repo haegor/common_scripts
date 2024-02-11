@@ -39,7 +39,6 @@ case $1 in
     done < <(echo "$volumes")
 ;;
 'about')				# О Скрипте
-# TODO: А может на awk переписать?
   comment_brace=0
 
   while read LINE
