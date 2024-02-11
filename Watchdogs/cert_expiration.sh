@@ -46,6 +46,25 @@ case $1 in
 'crt'|'pem')	# Проверка истечения срока годности для crl и pem файлов
     expiration_date=$(openssl x509 -text -in "${target_file}" | egrep "Not After" | awk -F" : " '{ print $2 }')
 ;;
+'about')				# О Скрипте
+  comment_brace=0
+
+  while read LINE
+  do
+    if [[ "$LINE" == "#" ]] && [ $comment_brace -eq 0 ]      # Начало коммента
+    then
+      comment_brace=1
+      echo -e "\n  О скрипте\n"
+    elif [ "${LINE:11:17}" != 'haegor' ] && [ $comment_brace -eq 1 ]    # Текст коммента
+    then
+      echo "  ${LINE:2}"
+    elif [ "${LINE:11:17}" == 'haegor' ] && [ $comment_brace -eq 1 ]    # Закрытие
+    then
+      echo -e "  ${LINE:2}\n"
+      exit 0
+    fi
+  done < <(cat "$0")
+;;
 '--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Параметры:"
