@@ -6,8 +6,6 @@
 #
 # 2022,2024 (c) haegor
 #
-# TODO перепроверить. Похоже что переход с py2 на py3 что-то сломал
-
 
 python_cmd="python3"
 
@@ -29,12 +27,6 @@ f_get () {
 }
 
 case $1 in
-'help')
-    echo "В качесте аргумента следует указать интересующий GROUP/VOLUME"
-    echo "Должно получиться что-то вроде: $0 'GROUP/VOLUME'"
-    echo "Таже можно указать ключевое слово all чтобы показать результаты для всех доступных волюмов"
-    exit 0
-;;
 'all')
     volumes=$(sudo lvs --select pool_lv=~'.*_cvol' -o vg_name,lv_name --noheadings 2>/dev/null)
     while read LINE
@@ -45,6 +37,39 @@ case $1 in
       f_get "$curr_volume"
       echo
     done < <(echo "$volumes")
+;;
+'about')				# О Скрипте
+# TODO: А может на awk переписать?
+  comment_brace=0
+
+  while read LINE
+  do
+    if [[ "$LINE" == "#" ]] && [ $comment_brace -eq 0 ]      # Начало коммента
+    then
+      comment_brace=1
+      echo -e "\n  О скрипте\n"
+    elif [ "${LINE:16:21}" != 'haegor' ] && [ $comment_brace -eq 1 ]    # Текст коммента
+    then
+      echo "  ${LINE:2}"
+    elif [ "${LINE:16:21}" == 'haegor' ] && [ $comment_brace -eq 1 ]    # Закрытие
+    then
+      echo -e "  ${LINE:2}\n"
+      exit 0
+    fi
+  done < <(cat "$0")
+;;
+'--help'|'-help'|'help'|'-h'|'')	# Автопомощь. Мы тут.
+  echo
+  echo "Недостаточно параметров или они неверно указаны."
+  echo "Cледует указать интересующий GROUP/VOLUME. Должно получиться что-то вроде:"
+  echo "	$0 'GROUP/VOLUME'"
+  echo
+  echo "Таже можно указать ключевое слово all чтобы показать статистику для всех доступных волюмов"
+  echo
+  echo "Перечень режимов:"
+  grep -P "^\'[[:graph:]]*\'\)[[:space:]]*#?.*$" $0 | grep -v 'excluder'
+  echo
+  exit 0
 ;;
 *)
     if [ ! "$1" ]
