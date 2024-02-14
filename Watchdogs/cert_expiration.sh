@@ -3,29 +3,24 @@
 # Скрипт проверки срока годности crl, pem, crt файлов и сигнализации на почту.
 # Для работы требуется пакет mailx.x86_64
 #
-# 2023 (c) haegor
+# 2023, 2024 (c) haegor
 #
 # TODO: универсализировать задание почтовых адресов
 #
 
-mail_to='haegor@haegor.ru'
-mail_from='cart_update@haegor.ru'
+[ -f "./settings.sh" ] && . ./settings.sh
 
 # Файл по умолчанию.
-if [ $2 ]
-then
-    target_file=$2
-else
-    target_file='/etc/openvpn/server/$(hostname)_ca.crt'
-fi
+[ $2 ] && target_file="$2" || target_file='/etc/openvpn/server/$(hostname)_ca.crt'
 
 # Количество дней по умолчанию.
-if [ $3 ]
-then
-    limit=$3
-else
-    limit=30
-fi
+[ $3 ] && limit="$3" || limit=30
+
+# Количество дней по умолчанию.
+[ $4 ] && mail_to="$4" || mail_to=${DEFAULT_MAIL_TO:="admin@$(hostname -f)"}
+
+# Количество дней по умолчанию.
+[ $5 ] && mail_from="$5" || mail_from=${DEFAULT_MAIL_FROM:="cert@$(hostname -f)"}
 
 case $1 in
 'crl')	# Certificate Revocations List = Список отозванных сертификатов
@@ -55,10 +50,10 @@ case $1 in
     then
       comment_brace=1
       echo -e "\n  О скрипте\n"
-    elif [ "${LINE:11:17}" != 'haegor' ] && [ $comment_brace -eq 1 ]    # Текст коммента
+    elif [ "${LINE:17:23}" != 'haegor' ] && [ $comment_brace -eq 1 ]    # Текст коммента
     then
       echo "  ${LINE:2}"
-    elif [ "${LINE:11:17}" == 'haegor' ] && [ $comment_brace -eq 1 ]    # Закрытие
+    elif [ "${LINE:17:23}" == 'haegor' ] && [ $comment_brace -eq 1 ]    # Закрытие
     then
       echo -e "  ${LINE:2}\n"
       exit 0
@@ -98,4 +93,3 @@ if [ ${difference_days} -le ${limit} ]; then
     echo "$1-file ${target_file} will be expired at ${expiration_date}. There is ${difference_days} last." | \
     mail -s "Cryptografic files expiration time" -r "${mail_from}" "${mail_to}"
 fi
-
