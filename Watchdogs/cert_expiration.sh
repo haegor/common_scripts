@@ -8,19 +8,19 @@
 # TODO: универсализировать задание почтовых адресов
 #
 
-[ -f "./settings.sh" ] && . ./settings.sh
+[ -f "../.env" ] && . ../.env
 
 # Файл по умолчанию.
-[ $2 ] && target_file="$2" || target_file='/etc/openvpn/server/$(hostname)_ca.crt'
+[ $2 ] && target_file="$2" || target_file="/etc/openvpn/server/$(hostname -f)_ca.crt"
 
 # Количество дней по умолчанию.
 [ $3 ] && limit="$3" || limit=30
 
-# Количество дней по умолчанию.
-[ $4 ] && mail_to="$4" || mail_to=${DEFAULT_MAIL_TO:="admin@$(hostname -f)"}
+# Адрес получателя
+[ $4 ] && mail_to="$4" || mail_to=${USER_MAIL_TO:="admin@$(hostname -f)"}
 
-# Количество дней по умолчанию.
-[ $5 ] && mail_from="$5" || mail_from=${DEFAULT_MAIL_FROM:="cert@$(hostname -f)"}
+# Адрес отправителя
+[ $5 ] && mail_from="$5" || mail_from=${CERT_MAIL_FROM:="cert@$(hostname -f)"}
 
 case $1 in
 'crl')	# Certificate Revocations List = Список отозванных сертификатов
