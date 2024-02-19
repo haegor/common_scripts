@@ -8,7 +8,7 @@
 # TODO: универсализировать задание почтовых адресов
 #
 
-[ -f "../.env" ] && . ../.env
+[ -f "./.env" ] && . ./.env || exit 0
 
 # Файл по умолчанию.
 [ $2 ] && target_file="$2" || target_file="/etc/openvpn/server/$(hostname -f)_ca.crt"
