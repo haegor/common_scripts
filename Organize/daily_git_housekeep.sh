@@ -25,7 +25,7 @@ then
         echo "Недостаточно параметров. Нужно два!"
         msg_params
         exit 0
-elif [ $# -gt 2 ]
+elif [ $# -gt 3 ]
 then
         echo
         echo "Слишком много параметров. Нужно два!"
@@ -44,13 +44,20 @@ fi
 
 target_path=$2
 
+if [ -z "$3" ]
+then
+  commit_message='daily autocommit'
+else
+  commit_message="$3"
+fi
+
 sudo chown -R ${username}:${usergroup} "${target_path}"
 cd "${target_path}"
 
 if [ -d ".git" ]
 then
   git add .
-  git commit -m 'daily autocommit'
+  git commit -m "$commit_message"
 else
   git init
   git add .
