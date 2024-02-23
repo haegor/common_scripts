@@ -5,7 +5,8 @@
 # 2023 (c) haegor
 #
 
-dt=`date +%F`
+dt=$(date +%Y-%m-%d_%H-%M)
+
 bkp_dir=$1
 
 bases=$(cat << EOF
@@ -19,7 +20,9 @@ pg_container=$1
 
 for BASE in $bases
 do
-  docker exec -it ${pg_container} /usr/bin/pg_dump ${BASE} -U ${username} --create --file="${bkp_dir}/${dt}_${BASE}.sql"
+  bkp_file="${bkp_dir}/${BASE}_${dt}.sql"
+  [ -f "$bkp_file" ] && { echo "Бэкап файл $bkp_file уже существует."; continue; }
+  docker exec -it ${pg_container} /usr/bin/pg_dump ${BASE} -U ${username} --create --file="${bkp_file}"
 done
 
 
