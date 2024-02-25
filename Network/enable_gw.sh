@@ -6,10 +6,10 @@
 # 2024 (c) haegor
 #
 
-iptables='echo sudo iptables'
+iptables='echo DEBUG sudo iptables'
 #iptables='sudo iptables'
 
-inet_ip='8.8.8.8'
+[ -z "$2" ] && dest_ip="$2" || dest_ip='1.1.1.1'
 
 # Будет грузить хосты из файла enable_gw_hosts
 hosts="$(cat ./${0:0:-3}_hosts)"
@@ -25,7 +25,6 @@ hosts="$(cat ./${0:0:-3}_hosts)"
 # Столь лаконичное название исключительно ради лаконичности самих правил.
 # Постоянно дёргать ip route - нормально, он же кеширует записи.
 f_get () {
-  set -			# Для удобства отладки
   local info_type="$1"
   local target_ip="$2"
 
@@ -59,8 +58,8 @@ case $1 in
   # Вот этого форвардинга
   while read LINE
   do
-    $iptables -A FORWARD -i $(f_get dev $LINE) -o $(f_get dev $inet_ip) -s $LINE/32 -j ACCEPT
-    $iptables -A FORWARD -i $(f_get dev $inet_ip) -o $(f_get dev $LINE) -d $LINE/32 -j ACCEPT
+    $iptables -A FORWARD -i $(f_get dev $LINE) -o $(f_get dev $dest_ip) -s $LINE/32 -j ACCEPT
+    $iptables -A FORWARD -i $(f_get dev $dest_ip) -o $(f_get dev $LINE) -d $LINE/32 -j ACCEPT
   done < <(echo "$hosts")
 
   # Возвращаем запреты
@@ -69,10 +68,11 @@ case $1 in
 
   while read LINE
   do
-    $iptables -t nat -A POSTROUTING -s $LINE/32 -o $(f_get dev $inet_ip) -j SNAT --to-source=$(f_get ip $inet_ip)
+    # SNAT
+    $iptables -t nat -A POSTROUTING -s $LINE/32 -o $(f_get dev $dest_ip) -j SNAT --to-source=$(f_get ip $dest_ip)
 
-    # А вот строка для DNAT, если будет нужен.
-    # $iptables -t nat -A PREROUTING -d $(f_get dev $inet_ip)/32 -i $(f_get dev $inet_ip) -j DNAT --to-destination=$(f_get ip $LINE)/32
+    # DNAT
+    $iptables -t nat -A PREROUTING -d $(f_get ip $dest_ip)/32 -i $(f_get dev $dest_ip) -j DNAT --to-destination=$LINE
   done < <(echo "$hosts")
 
   echo "Форвардинг включен."
@@ -85,11 +85,14 @@ case $1 in
 '--help'|'-help'|'help'|'-h'|*|'')		# Автопомощь. Мы тут.
   echo
   echo "Недостаточно параметров или они неверно указаны."
+  echo "Общий вид вызова команды:"
+  echo "$0 <on|off|help> [Адрес назначения]"
+  echo
   echo "В качестве обязательного параметра указывается его режим."
+  echo "В качестве опционального - адрес назначения. 1.1.1.1 - по умолчанию."
   echo
-  echo "$0 <on|off|help>"
-  echo
-  echo "При этом список хостов передаётся через файл ${0:0:-3}_hosts"
+  echo "При этом список хостов, для которых должен осуществляться форвардинг,"
+  echo "передаётся через файл ${0:0:-3}_hosts."
   echo
   echo "Полный перечень режимов:"
   grep -P "^\'[[:graph:]]*\'\)[[:space:]]*#?.*$" $0 | grep -v 'excluder'
