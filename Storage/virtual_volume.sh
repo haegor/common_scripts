@@ -40,10 +40,10 @@ f_find_mortice () {
 ### MAIN #######################################################################
 
 case $1 in
-'all')			# Создать raw-файл, подключить к loop устройству и смонтировать
+'all')					# Создать raw-файл, подключить к loop устройству и смонтировать
     echo 1
 ;;
-'create')		# Создать raw-файл, подключить к loop устройству и смонтировать
+'create')				# Создать raw-файл, подключить к loop устройству и смонтировать
   [ ! -f "${volume_file}" ] && dd if=/dev/zero of="${volume_file}" bs=1M count=${size} 2>/dev/null
 
   mounted_loop=$(${losetup} | grep "${volume_file}" | cut -f1 -d' ')
@@ -56,14 +56,14 @@ case $1 in
 
   $0 attach "${volume_file}"
 ;;
-'attach')		# Подключить raw-файл к loop-устройству
+'attach')				# Подключить raw-файл к loop-устройству
   loop_mortice=$(f_find_mortice)
 
   ${losetup} "${loop_mortice}" "${volume_file}"
 
   echo ${loop_mortice}
 ;;
-'detach')		# Отключить raw-файл от loop-устройству
+'detach')				# Отключить raw-файл от loop-устройству
   # TODO: проверку на смонтированность
 
   loop_file=$(${losetup} | grep "${volume_file}" | cut -f1 -d' ')
@@ -75,15 +75,15 @@ case $1 in
     ${losetup} --detach "${loop_file}"
   fi
 ;;
-'mount')		# Примонтировать loop-устройство
+'mount')				# Примонтировать loop-устройство
   # TODO работу с параметрами. Возможность вызвать через другие части скрипта.
   ${mount} "${volume_file}" "${mount_point}"
 ;;
-'umount')		# Демонтировать loop-устройство
+'umount')				# Демонтировать loop-устройство
   [ "${mount_point}" ] && ${umount} "${mount_point}"
   [ "${volume_file}" ] && ${umount} "${volume_file}"
 ;;
-'look'|'ls')		# Осмотреться перед тем как что-то делать
+'look'|'ls')				# Осмотреться перед тем как что-то делать
   echo "=== Loop devices: =================================================================================="
   ${losetup}
   echo "=== Mount points: =================================================================================="
@@ -108,7 +108,7 @@ case $1 in
     fi
   done < <(cat "$0")
 ;;
-'--help'|'-help'|'help'|'-h'|''|*)	# Автопомощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Недостаточно параметров или они неверно указаны."
   echo "В качестве обязательного параметра указывается его режим."

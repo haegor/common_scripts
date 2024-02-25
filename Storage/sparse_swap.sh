@@ -40,7 +40,7 @@ volsize=512
 volcount=5		#ВАЖНО: volcount не может быть больше 7и.
 
 case $1 in
-'create')		# Создать файлы, подключить, собрать в RAID, натянуть VG и LV, создать своп, включить его.
+'create')				# Создать файлы, подключить, собрать в RAID, натянуть VG и LV, создать своп, включить его.
   for i in `seq 0 ${volcount}`
   do
     volume_file="${file_tpl}${i}"
@@ -75,10 +75,10 @@ case $1 in
   ${mkswap} "${devmapper_file}"
   ${swapon} "${devmapper_file}"
 ;;
-'attach')		# TODO: Собрать logicalVolume из созданных ранее файлов
+'attach')				# TODO: Собрать logicalVolume из созданных ранее файлов
   echo empty
 ;;
-'remove'|'rm')		# Отцепит swap и удалит его logicalVolume
+'remove'|'rm')				# Отцепит swap и удалит его logicalVolume
   inode=$(stat -L -c %i ${devmapper_file}) 		# без -L будет inode ссылки, которая тоже файл
   dm_file=$(sudo find /dev/ -maxdepth 1 -inum ${inode})
 
@@ -86,17 +86,17 @@ case $1 in
 
   ${lvremove} ${groupname}/${volumename}
 ;;
-'detach')		# Отключить loop-устройства. Возможно только после удаления logicalVolume
+'detach')				# Отключить loop-устройства. Возможно только после удаления logicalVolume
   for i in `seq 0 ${volcount}`
   do
     ${losetup} --detach /dev/loop${i}
   done
 ;;
-'swapon')
+'swapon')				# Подключить созданный диск как swap
   ${mkswap} "${devmapper_file}"
   ${swapon} "${devmapper_file}"
 ;;
-'look'|'ls')		# Посмотреть что получилось
+'look'|'ls')				# Посмотреть что получилось
   echo "--- losetup ---"
   ${losetup}
 
@@ -126,7 +126,7 @@ case $1 in
     fi
   done < <(cat "$0")
 ;;
-'--help'|'-help'|'help'|'-h'|''|*)	# Автопомощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Недостаточно параметров или они неверно указаны."
   echo

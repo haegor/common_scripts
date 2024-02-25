@@ -27,10 +27,10 @@ case $1 in
 esac
 
 case $1 in
-'match'|'find')		# Посмотреть потенциально отделяемые файлы
+'match'|'find')				# Посмотреть потенциально отделяемые файлы
     find . -iname "${pattern}" -exec bash -c 'BN=$(basename "{}"); echo "$BN - {}" ' \; | sort
 ;;
-'move')			# Отделить файлы в отдельную папку
+'move')					# Отделить файлы в отдельную папку
     [ "$3" ] && to_dir="$3" || to_dir="./_found"
 
     # Для исполнения команд через exec find-а мы запускаем сабшелл, поэтому нужен export
@@ -42,11 +42,11 @@ case $1 in
     find . -iname "${pattern}" -type f -exec \
       bash -c 'BN=$(basename "{}"); if [ -f "${to_dir}/${BN}" ]; then mv -i "{}" "${to_dir}/${BN}_+1"; else mv -i "{}" "${to_dir}/"; fi' \;
 ;;
-'md5-sum')		# Вычислить md5, сортировать по md5
+'md5-sum')				# Вычислить md5, сортировать по md5
     find . -iname "${pattern}" -exec \
       bash -c 'BN=$(basename "{}"); md5=$(md5sum "{}" | cut -f1 -d" "); echo "$md5 - $BN - {}"' \; | sort
 ;;
-'md5-file')		# Вычислить md5, сортировать по именам файлов
+'md5-file')				# Вычислить md5, сортировать по именам файлов
     find . -iname "${pattern}" -exec \
       bash -c 'BN=$(basename "{}"); md5=$(md5sum "{}" | cut -f1 -d" "); echo "$BN - $md5 - {}"' \; | sort
 ;;

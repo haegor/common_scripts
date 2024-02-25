@@ -1,17 +1,18 @@
-#!/bin/bash -x
+#!/bin/bash
+# -x
 #
 # Скрипт для включения форвардинга на хосте для списка определённых хостов.
 #
 # 2024 (c) haegor
 #
 
-#iptables='echo sudo iptables'
-iptables='sudo iptables'
+iptables='echo sudo iptables'
+#iptables='sudo iptables'
 
 inet_ip='8.8.8.8'
 
-# enable_gw_hosts
-hosts="$(cat ${0:0:-3}_hosts)"
+# Будет грузить хосты из файла enable_gw_hosts
+hosts="$(cat ./${0:0:-3}_hosts)"
 
 # А ещё можно вот так, чтобы одним файлом:
 #hosts=$(cat << EOF
@@ -49,7 +50,7 @@ f_get () {
 }
 
 case $1 in
-"yes"|"on"|"1"|"true")
+'yes'|'on'|'1'|'true')				# Включить форвардинг
   sudo sysctl -w "net.ipv4.conf.all.forwarding=1"
   # Снимаем запреты чтобы соблюсти очерёдность правил при добавлении форвардинга
   $iptables -D FORWARD -i lo -j REJECT --reject-with icmp-host-prohibited
@@ -70,19 +71,29 @@ case $1 in
   do
     $iptables -t nat -A POSTROUTING -s $LINE/32 -o $(f_get dev $inet_ip) -j SNAT --to-source=$(f_get ip $inet_ip)
 
-    # Как показала практика - DNAT нафиг не нужен.
-    # $iptables -t nat -A PREROUTING -d $(f_get dev $inet_ip)/32 -i $(f_get dev $inet_ip) -j DNAT --to-destination=$(f_get dev $LINE)/32
+    # А вот строка для DNAT, если будет нужен.
+    # $iptables -t nat -A PREROUTING -d $(f_get dev $inet_ip)/32 -i $(f_get dev $inet_ip) -j DNAT --to-destination=$(f_get ip $LINE)/32
   done < <(echo "$hosts")
 
   echo "Форвардинг включен."
 ;;
-"no"|"off"|"0"|"false")
+'no'|'off'|'0'|'false')				# Выключить форвардинг
   sudo sysctl -w "net.ipv4.conf.all.forwarding=0"
   sudo iptables-restore /etc/sysconfig/iptables
   echo "Форвард и NAT отключены"
 ;;
-*)
-  echo "Укажите режим работы."
+'--help'|'-help'|'help'|'-h'|*|'')		# Автопомощь. Мы тут.
+  echo
+  echo "Недостаточно параметров или они неверно указаны."
+  echo "В качестве обязательного параметра указывается его режим."
+  echo
+  echo "$0 <on|off|help>"
+  echo
+  echo "При этом список хостов передаётся через файл ${0:0:-3}_hosts"
+  echo
+  echo "Полный перечень режимов:"
+  grep -P "^\'[[:graph:]]*\'\)[[:space:]]*#?.*$" $0 | grep -v 'excluder'
+  echo
+  exit 0
 ;;
 esac
-

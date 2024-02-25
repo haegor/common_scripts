@@ -28,7 +28,7 @@ volsize=1024
 volcount=4
 
 case $1 in
-'create')		# Создать файлы, подключить, собрать в RAID, натянуть VG и LV, создать своп, включить его.
+'create')				# Создать файлы, подключить, собрать в RAID, натянуть VG и LV, создать своп, включить его.
   for i in `seq 0 ${volcount}`
   do
     volume_file="${file_tpl}${i}"
@@ -52,19 +52,19 @@ case $1 in
     fi
   done
 ;;
-'attach')		# TODO: Собрать logicalVolume из созданных ранее файлов
+'attach')				# TODO: Собрать logicalVolume из созданных ранее файлов
   echo empty
 ;;
-'remove'|'rm')		# Удалить logicalVolume
+'remove'|'rm')				# Удалить logicalVolume
   ${lvremove} ${groupname}/${volumename}
 ;;
-'detach')		# Отключить loop-устройства. Возможно только после удаления logicalVolume
+'detach')				# Отключить loop-устройства. Возможно только после удаления logicalVolume
   for i in `seq 0 ${volcount}`
   do
     ${losetup} --detach /dev/loop${i}
   done
 ;;
-'look'|'ls')		# Посмотреть что получилось
+'look'|'ls')				# Посмотреть что получилось
   echo "--- losetup ---"
   ${losetup}
 
@@ -94,7 +94,7 @@ case $1 in
     fi
   done < <(cat "$0")
 ;;
-'--help'|'-help'|'help'|'-h'|''|*)	# Автопомощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Недостаточно параметров или они неверно указаны."
   echo

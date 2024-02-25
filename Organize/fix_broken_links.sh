@@ -110,7 +110,7 @@ function f_truncate_link_name () {
 # Убирает приписку "Ссылка на " из имён ссылок.
 function f_remove_link_to () {
   analyzed_dir=$1
-  
+
   # В случае если нам указали на конкретный файл. Для запуска из скрипта
   LINE="${analyzed_dir}"
   f_truncate_link_name "${LINE}"
@@ -125,22 +125,22 @@ function f_remove_link_to () {
 
 ######################### MAIN #########################
 case $1 in
-'fix')                    # Найти битые ссылки в папке1 и заменить их на похожие имена в папке2
+'fix')					# Найти битые ссылки в папке1 и заменить их на похожие имена в папке2
   f_enought $# 3
   f_find_and_fix "$2" "$3"
 ;;
-'find')                   # Поиск битых ссылок в указанной папке
+'find')					# Поиск битых ссылок в указанной папке
   f_enought $# 2
   f_find_and_report "$2"
 ;;
-'remove_link_to')  # убрать фразу "Ссылка на" у всех ссылок в директории
+'remove_link_to')			# убрать фразу "Ссылка на" у всех ссылок в директории
   f_enought $# 2
   f_remove_link_to "$2"
 ;;
-'test') #                 # excluder
+'test')					# excluder
   f_normalize_path "$2"
 ;;
-'fix_links_script')       # не помню что и зачем.
+'fix_links_script')			# не помню что и зачем.
   find . -type l | while read LINK
   do
     result=$(realpath "${LINK}" &>/dev/null && echo 0 || echo 1)
@@ -170,7 +170,7 @@ case $1 in
     fi
   done < <(cat "$0")
 ;;
-'help'|'--help'|'-help'|'-h'|''|*)	# Автопомощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Перечень доступных опций:"
   grep -P "^\'[[:graph:]]*\'\)[[:space:]]*#?.*$" $0 | grep -v 'excluder'

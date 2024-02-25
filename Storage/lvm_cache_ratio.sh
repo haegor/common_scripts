@@ -27,7 +27,7 @@ f_get () {
 }
 
 case $1 in
-'all')
+'all')					# Посчитать всё что есть
     volumes=$(sudo lvs --select pool_lv=~'.*_cvol' -o vg_name,lv_name --noheadings 2>/dev/null)
     while read LINE
     do

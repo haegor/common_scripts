@@ -23,7 +23,7 @@
 [ $5 ] && mail_from="$5" || mail_from=${CERT_MAIL_FROM:="cert@$(hostname -f)"}
 
 case $1 in
-'crl')	# Certificate Revocations List = Список отозванных сертификатов
+'crl')					# Certificate Revocations List = Список отозванных сертификатов
     # Файлы crl находятся в особом формате. Для их просмотра,
     # сначала его необходимо преобразовать в pkcs7
 
@@ -33,12 +33,12 @@ case $1 in
     expiration_date=$(openssl pkcs7 -in "${intermidiate_file}" -print | grep "nextUpdate"| awk -F': ' '{ print $2}')
     rm "${intermidiate_file}"
 ;;
-'sig')	# Sign. TODO: Дописать.
+'sig')					# Sign. TODO: Дописать.
     # вот эти две команды взаимообратны:
     # base64 -d ./sign2.sig > sign2.dec
     # openssl x509 -inform DER -in ./sign2.dec
 ;;
-'crt'|'pem')	# Проверка истечения срока годности для crl и pem файлов
+'crt'|'pem')				# Проверка истечения срока годности для crl и pem файлов
     expiration_date=$(openssl x509 -text -in "${target_file}" | egrep "Not After" | awk -F" : " '{ print $2 }')
 ;;
 'about')				# О Скрипте

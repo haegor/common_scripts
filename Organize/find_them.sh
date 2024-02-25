@@ -112,4 +112,3 @@ do
     echo
 
 done < <(echo "${list}")
-

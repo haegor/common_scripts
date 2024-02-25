@@ -36,6 +36,6 @@ do
   else
     PREV=$CURRENT
   fi
- 
+
 done < <(echo -e "$files_with_md5" | sort)
 

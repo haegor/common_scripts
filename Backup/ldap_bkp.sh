@@ -50,41 +50,41 @@ case $1 in
 esac
 
 case $1 in
-'config_backup')		# Бэкап базы с настройками
-	${slapcat} -n 0 > "${bkp_dir}/slapd_${timestamp}.ldif"
+'config_backup')			# Бэкап базы с настройками
+  ${slapcat} -n 0 > "${bkp_dir}/slapd_${timestamp}.ldif"
 ;;
-'base_backup')			# Бэкап самой бaзы LDAP
-	${slapcat} -n 2 > "${bkp_dir}/base_${timestamp}.ldif"
+'base_backup')				# Бэкап самой бaзы LDAP
+  ${slapcat} -n 2 > "${bkp_dir}/base_${timestamp}.ldif"
 ;;
-'paranoic_backup')		# Делает бэкап простым копированием папок с базами
-	${systemctl} stop dlapd
+'paranoic_backup')			# Делает бэкап простым копированием папок с базами
+  ${systemctl} stop dlapd
 
-	# Бэкап папки с базой
-	cp -r "${slapd_dir}" "${bkp_dir}/slapd.d_${timestamp}"
+  # Бэкап папки с базой
+  cp -r "${slapd_dir}" "${bkp_dir}/slapd.d_${timestamp}"
 
-	# Бэкап папки с базой. Чисто на всякий случай
-	cp -r "${base_dir}" "${base_dir}_${timestamp}"
+  # Бэкап папки с базой. Чисто на всякий случай
+  cp -r "${base_dir}" "${base_dir}_${timestamp}"
 
-	${systemctl} start dlapd
+  ${systemctl} start dlapd
 ;;
-'config_restore')		# Восстановить все настройки:
-	${systemctl} stop slapd
+'config_restore')			# Восстановить все настройки:
+  ${systemctl} stop slapd
 
-	# Чистка
-	[ "${slapd_dir}" ] && rm -rf "${slapd_dir}"
-	mkdir -p "${slapd_dir}"
+  # Чистка
+  [ "${slapd_dir}" ] && rm -rf "${slapd_dir}"
+  mkdir -p "${slapd_dir}"
 
-	# slapd.ldif создаёт backup_config
-	${slapadd} -n 0 -F "${slapd_dir}" -l "${restorable_bkp}"
+  # slapd.ldif создаёт backup_config
+  ${slapadd} -n 0 -F "${slapd_dir}" -l "${restorable_bkp}"
 
-	chown -R ${ldap_user}:${ldap_user} "${slapd_dir}"
+  chown -R ${ldap_user}:${ldap_user} "${slapd_dir}"
 
-	${systemctl} start slapd
+  ${systemctl} start slapd
 ;;
-'base_restore')			# Восстановление бaзы LDAP
-	${systemctl} stop slapd
-	${slapadd} -n 2 -l "${restorable_bkp}"
-	${systemctl} start slapd
+'base_restore')				# Восстановление бaзы LDAP
+  ${systemctl} stop slapd
+  ${slapadd} -n 2 -l "${restorable_bkp}"
+  ${systemctl} start slapd
 ;;
 'about')				# О Скрипте
   comment_brace=0
@@ -119,4 +119,3 @@ case $1 in
   exit 0
 ;;
 esac
-

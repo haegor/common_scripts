@@ -21,7 +21,7 @@ size=1024
 devmapper_file="/dev/mapper/${groupname}-${volumename}"
 
 case $1 in
-'create')
+'create')				# Создать
   [ ! -f "${volume_file}" ] && dd if=/dev/zero of="${volume_file}" bs=1M count=${size}
 
   already_looped_at=$(${losetup} | grep "${volume_file}" | cut -f1 -d' ')
@@ -33,7 +33,7 @@ case $1 in
   ${vgcreate} "${groupname}" "${loop_file}"
   ${lvcreate} -l 100%FREE -n "${volumename}" "${groupname}"
 ;;
-'detach')
+'detach')				# Отключить
 #  inode=$(stat -L -c %i ${devmapper_file})              # без -L будет inode ссылки, которая тоже файл
 #  dm_file=$(sudo find /dev/ -maxdepth 1 -inum ${inode})
 #  [ ! "$(${swapon}  | grep ${dm_file})" == '' ] && ${swapoff} "${devmapper_file}" && echo "swapoff ${devmapper_file} прошёл успешно"
@@ -41,7 +41,7 @@ case $1 in
   ${lvremove} ${groupname}/${volumename}
   ${losetup} --detach "${loop_file}"
 ;;
-'look'|'ls')
+'look'|'ls')				# Осмотреться
   echo "--- LVS ---"
   sudo lvs 2>/dev/null | grep -P "${volumename}|LV"
   echo "--- VGS ---"
@@ -68,7 +68,7 @@ case $1 in
     fi
   done < <(cat "$0")
 ;;
-'--help'|'-help'|'help'|'-h'|''|*)	# Автопомощь. Мы тут.
+'--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
   echo "Недостаточно параметров или они неверно указаны."
   echo

@@ -2,6 +2,8 @@
 #
 # Убирает болтающиеся (осиротевшие) docker-образы
 #
+# 2023 (c) haegor
+#
 
 docker rmi $(docker images -f "dangling=true" -q)
 
