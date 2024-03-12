@@ -81,6 +81,3 @@ case $1 in
     f_get $1
 ;;
 esac
-
-
-

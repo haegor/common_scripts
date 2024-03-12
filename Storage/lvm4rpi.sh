@@ -16,7 +16,7 @@ exit 0
 # Загрузка по uuid - не работает. Вообще, даже без LVM.
 # Зато работает по имени блочного устройства и PARTUUID.
 # Последний выдаётся только primary партициям.
-# Но если подсовывать устройство дев-маппера (/dev/mapper/storage-root) для 
+# Но если подсовывать устройство дев-маппера (/dev/mapper/storage-root) для
 # LVM, но и оно не сработает. При этом остальное спокойно подключает.
 
 #  А вообще, вроде как, лучше всего использовать sgdisk для gpt партиций
@@ -38,7 +38,7 @@ f_write2fstab () {
 
 f_get_vol_uuid () {
   local volume="$1"
-  
+
   # Пример строки: /dev/sda2: UUID="748f85a9-48d4-475a-ace0-7986d176537c"
   local blk_output=$(blkid --match-tag=UUID ${volume})
   local cut_uuid=${blk_output#"$volume: UUID="}
@@ -224,7 +224,7 @@ case $1 in
     [ "$lv" == "opt" ]  && { f_write2fstab "$uuid" '\t/opt	ext4	defaults,noatime	0 0' && continue; }
     [ "$lv" == "var" ]  && { f_write2fstab "$uuid" '\t/var	xfs	defaults,noatime	0 0' && continue; }
     [ "$lv" == "home" ] && { f_write2fstab "$uuid" '\t/home	xfs	defaults,noatime	0 0' && continue; }
-	    [ "$lv" == "containers" ] && { f_write2fstab "$uuid" '\t/srv/containers/\txfs\tdefaults,noatime\t0 0'; \
+    [ "$lv" == "containers" ] && { f_write2fstab "$uuid" '\t/srv/containers/\txfs\tdefaults,noatime\t0 0'; \
       mkdir -p "/srv/containers"; continue; }
     [ "$lv" == "volumes" ] && { f_write2fstab "$uuid" '\t/srv/volumes/\txfs\tdefaults,noatime\t0 0'; \
       mkdir -p "/srv/volumes"; continue; }

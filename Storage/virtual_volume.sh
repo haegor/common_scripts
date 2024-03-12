@@ -9,8 +9,8 @@
 ### Секция настроек ############################################################
 
 # В $2 будет либо raw-файл, либо его loop. В зависимости от режима
-[ "$2" ] && volume_file="$2" || volume_file='./test_volume'
-[ "$3" ] && mount_point="$3" || mount_point='/mnt/dev'
+[ -n "$2" ] && volume_file="$2" || volume_file='./test_volume'
+[ -n "$3" ] && mount_point="$3" || mount_point='/mnt/dev'
 
 losetup='sudo losetup'
 mount='sudo mount'
@@ -122,4 +122,3 @@ case $1 in
   exit 0
 ;;
 esac
-

@@ -42,11 +42,11 @@ f_restore_settings () {
 # TODO: Вот над этим следует серьёзно подумать.
 #
 #     if [ "$chosen_path" == '/' ]
-#     then    
+#     then
 #       chown ${owner}:${group} "${file}"
 #       chmod ${rights} "${file}"
 #     elif [ "$chosen_path" == './' ]
-#     then 
+#     then
 #       chown ${owner}:${group} ".${file}"
 #       chmod ${rights} ".${file}"
 #     else
@@ -57,18 +57,18 @@ f_restore_settings () {
 }
 
 
-if [ "$1" ] 
+if [ -n "$1" ]
 then
     mode="$1"
-else 
+else
     reason[${#reason[@]}]="Недостаточно параметров. Не указан режим работы скрипта."
     reason[${#reason[@]}]="Выберите из: save, restore."
     reason[${#reason[@]}]=''
     mode="help"
 fi
 
-if [ "$2" ] 
-then 
+if [ -n "$2" ]
+then
     chosen_path="$2"
 else
     reason[${#reason[@]}]="Недостаточно параметров."
@@ -77,7 +77,7 @@ else
     mode="help"
 fi
 
-if [ "$3" ]
+if [ -n "$3" ]
 then
     chosen_file="$3"
 else
@@ -126,4 +126,3 @@ case $mode in
   exit 0
 ;;
 esac
-
