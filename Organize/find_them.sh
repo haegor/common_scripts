@@ -16,7 +16,7 @@
 # Мановением руки (удалением -s) мягкие ссылки могут быть превращены в жёсткие,
 # а заменой ln на mv файлы можно переместить.
 #
-# 2023 (c) haegor
+# 2023-2024 (c) haegor
 #
 
 help_msg () {
@@ -29,18 +29,16 @@ help_msg () {
   echo
 }
 
-if [ $1 ]
+if [ -n "$1" ]
 then
-  if [ ! -d ${target_dir} ]
+  if [ ! -d "$target_dir" ]
   then
     echo
     echo "Указанной папки не существует!"
     help_msg
     exit 0
   fi
-
-  target_dir=$1
-
+  target_dir="$1"
 else
   echo
   echo "Необходимо указать целевую папку!"
@@ -49,9 +47,9 @@ else
 fi
 
 
-[ $2 ] && categories_dir=$2 || categories_dir="${target_dir}/By name"
+[ -n "$2" ] && categories_dir="$2" || categories_dir="${target_dir}/By name"
 
-if [ ! -d "${categories_dir}" ]
+if [ ! -d "$categories_dir" ]
 then
   echo
   echo "Папки с категориями не существует!"
@@ -63,52 +61,74 @@ excluded_tpl='0_!_*'
 app_subdir='__appearancies__'
 action='ln -s'
 
-# TODO: Это для отдельной обработки
+# TODO: Это для отдельной обработки, на будущее
 #echo ===== LINKS =====
 #find ./ -maxdepth 1 -type l ! -iname "0_!_*"
 
+# В cut счёт ведётся с единицы. Т.е. чтобы отрезать / надо указать 1+1.
 count=$(echo -n "${categories_dir}" | wc -c)
-let count=count+2						# Потому что начинается с 1, а ещё есть /, что ещё +1
+let count=count+2
 
-list=$(find "${categories_dir}" -mindepth 1 -maxdepth 1 -type d ! -iname "${excluded_tpl}" -print | cut -b ${count}-)
+# Получаем список поддиректорий внутри указанной директории, исключаем шаблон и отрезаем лидирующий символ (/)
+# В итоге получится список категорий.
+categories_list=$(find "${categories_dir}" -mindepth 1 -maxdepth 1 -type d ! -iname "${excluded_tpl}" -print | cut -b ${count}-)
 
 count=0
+
+# Значения для LINE берутся из categories_list
 while read LINE
 do
-    appearancies=''
+    # Из имён категорий делаем маски вида: *имя?фамилия*
+    # Знак вопроса посередине почему-то не прокатывает в случае отсутствия пробела между словами.
+    # Зато срабатывает звёздочка, но она может привести к ложным срабатываниям в случах,
+    # когда в имени файла перечисляется несколько категорий.
+    tpl=$(echo \*${LINE}\* | tr [:blank:] \*)
 
-    tpl=$(echo \*${LINE}\* | tr [:blank:] \?)
-
-    [ "*${LINE}*" == "${tpl}" ] && continue			# Пропускаем те папки, под которые могут свалиться слишком многие
+    # Если категория с добавленными "*" по бокам равна шаблону, то в ней нет пробелов, которые бы заменял tr.
+    # Значит категория содержит лишь имя и под её маску может попасть слишком многое.
+    [ "*${LINE}*" == "${tpl}" ] && continue
 
     echo "=== Ищем: ${tpl} ========================================"
 
     #D name_escaped=$(echo ${LINE} | sed 's/ /\\ /' ; )
     #D echo "escaped name: -- ${name_escaped} --"
 
+    # Без учёта регистра, ищем в целевой папке файл по созданому шаблону, не являющийся jpeg или part, исключая директорию самой категории.
+    appearancies=''
     appearancies=$(find "${target_dir}/" -type f \( -iname "${tpl}" -a -not \( -iname "*.jpg" -o -iname "*.part" \) \)  -a ! -path "${categories_dir}/${LINE}/*")
 
-    #D [ $count -eq 20 ] && break || let count=${count}+1	# Ограничитель. Для отладки
+#    [ $count -eq 20 ] && break || let count=${count}+1		# Ограничитель. Для отладки
 
     [ ! -n "${appearancies}" ] && continue			# Нигде не встретилось
 
-    app_dir="${categories_dir}/${LINE}/${app_subdir}"
+    app_dir="${categories_dir}/${LINE}/${app_subdir}"		# Куда складываем ссылки
     [ ! -d "${app_dir}" ] && mkdir -p "${app_dir}"
 
+    # Проходим по найденным появлениям и смотрим не созданы ли уже для них ссылки в папке назначения.
+    # Если есть - проверяем на битость и если что - заменяем.
     while read APPEAR
     do
         BN=$(basename "${APPEAR}")
 
         if [ -L "${app_dir}/${BN}" ]
         then
+          # Проверка на битость
+          if [ -r "${app_dir}/${BN}" ]
+          then
             echo "Встретилось, но уже есть: ${APPEAR}"
             continue
+          else
+            # TODO вот тут ещё перепроверить.
+            echo rm "${app_dir}/${BN}"
+          fi
         fi
 
-        ${action} "${APPEAR}" "${app_dir}/" && echo "Добавили ссылку на ${APPEAR}"
+        ${action} "${APPEAR}" "${app_dir}/" \
+          && echo "Добавили ссылку на ${APPEAR}"
 
     done < <(echo "$appearancies")
 
     echo
 
-done < <(echo "${list}")
+done < <(echo "${categories_list}")
+
