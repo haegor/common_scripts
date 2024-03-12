@@ -9,28 +9,28 @@
 #
 
 msg_params () {
-        echo
-        echo "Использование: $0 <user> <path>, где:"
-        echo "  <user>   - имя владельца файлов"
-        echo "Через двоеточие (:) можно указать группу"
-        echo "  <path>   - путь, в котором следует сделать add и commit"
-        echo "Рекомендация: используйте двойные ковычки."
-        echo
-        return 0
+    echo
+    echo "Использование: $0 <user> <path>, где:"
+    echo "  <user>   - имя владельца файлов"
+    echo "Через двоеточие (:) можно указать группу"
+    echo "  <path>   - путь, в котором следует сделать add и commit"
+    echo "Рекомендация: используйте двойные ковычки."
+    echo
+    return 0
 }
 
 if [ $# -lt 2 ]
 then
-        echo
-        echo "Недостаточно параметров. Нужно два!"
-        msg_params
-        exit 0
+    echo
+    echo "Недостаточно параметров. Нужно два!"
+    msg_params
+    exit 0
 elif [ $# -gt 3 ]
 then
-        echo
-        echo "Слишком много параметров. Нужно два!"
-        msg_params
-        exit 0
+    echo
+    echo "Слишком много параметров. Нужно два!"
+    msg_params
+    exit 0
 fi
 
 if [ ! $(echo "$1" | grep ':') == '' ]

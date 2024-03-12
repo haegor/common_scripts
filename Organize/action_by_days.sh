@@ -6,19 +6,19 @@
 #
 
 case $1 in
-'ln_by_create')			# Ссылки по дате создания
+'ln_by_create')		# Ссылки по дате создания
   action='ln -s'
   creteria='%w'
 ;;
-'ln_by_mod')			# Ссылки по дате изменения
+'ln_by_mod')		# Ссылки по дате изменения
   action='ln -s'
   creteria='%y'
 ;;
-'mv_by_create')			# Переместить по дате создания
+'mv_by_create')		# Переместить по дате создания
   action='mv'
   creteria='%w'
 ;;
-'mv_by_mod')			# Переместить по дате изменения
+'mv_by_mod')		# Переместить по дате изменения
   action='mv'
   creteria='%y'
 ;;
@@ -43,7 +43,7 @@ do
   [ ! -d "./${file_path}" ] && mkdir -p "./${file_path}"
 
   [ ! -f "${work_dir}/${file_path}/${LINE}" ] \
-          && $action "${work_dir}/${LINE}" "./${file_path}/" \
-          || echo "Файл существует: ${work_dir}/${file_path}/${LINE}" >> /dev/null
+      && $action "${work_dir}/${LINE}" "./${file_path}/" \
+      || echo "Файл существует: ${work_dir}/${file_path}/${LINE}" >> /dev/null
 
 done < <(ls -tA)

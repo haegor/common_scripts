@@ -29,4 +29,3 @@ do
 #    grep -rn "dirname" "${LINE}"
   fi
 done < <(echo "$list")
-
