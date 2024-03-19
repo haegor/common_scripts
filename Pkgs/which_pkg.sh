@@ -34,6 +34,14 @@ binary=$(which $1)
 binary_rp=$(realpath "$binary") \
   || { echo "Невозможно определить реальный путь до $binary"; exit 0; }
 
+allIsSimple=$(dpkg -S "$binary_rp")
+if [ -n "$allIsSimple" ] 
+then
+	echo "Простой случай. Прямой поиск дал искомый пакет:"
+	echo "$allIsSimple"
+	exit 0
+fi
+
 # Вот тут мы достаём список ссылок на директории из пакета с файлами для рутовой партиции
 while read basefile
 do
@@ -65,3 +73,4 @@ if [ ! "$job_is_done" == 'true' ]
 then
   echo "Среди ссылок пакета с базовыми файлами рутовой партиции ничего не найдено."
 fi
+
