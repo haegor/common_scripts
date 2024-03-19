@@ -19,8 +19,8 @@ f_get () {
   write_hits=$(echo "${writes}" | awk '{print $4}')
   write_misses=$(echo "${writes}" | awk '{print $6}')
 
-  read_ratio=$(${python_cmd} -c "print (${read_hits}/(${read_hits} + ${read_misses}.))")
-  write_ratio=$(${python_cmd} -c "print (${write_hits}/(${write_hits} + ${write_misses}.))")
+  read_ratio=$($python_cmd -c "print (${read_hits}/(${read_hits} + ${read_misses}.))")
+  write_ratio=$($python_cmd -c "print (${write_hits}/(${write_hits} + ${write_misses}.))")
 
   echo "$1 read_ratio $read_ratio"
   echo "$1 write_ratio $write_ratio"
@@ -61,7 +61,7 @@ case $1 in
   echo
   echo "Недостаточно параметров или они неверно указаны."
   echo "Cледует указать интересующий GROUP/VOLUME. Должно получиться что-то вроде:"
-  echo "	$0 'GROUP/VOLUME'"
+  echo "    $0 'GROUP/VOLUME'"
   echo
   echo "Таже можно указать ключевое слово all чтобы показать статистику для всех доступных волюмов"
   echo
@@ -71,13 +71,13 @@ case $1 in
   exit 0
 ;;
 *)
-    if [ ! "$1" ]
-    then
-      $0 help
-      exit 0
-    fi
+  if [ ! "$1" ]
+  then
+    $0 help
+    exit 0
+  fi
 
-    echo "Подсчёт рациональности для: $1"
-    f_get $1
+  echo "Подсчёт рациональности для: $1"
+  f_get $1
 ;;
 esac
