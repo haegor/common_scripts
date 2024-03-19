@@ -31,12 +31,12 @@ help_msg () {
 
 if [ -n "$1" ]
 then
-  if [ ! -d "$target_dir" ]
+  if [ ! -d "$1" ]
   then
     echo
     echo "Указанной папки не существует!"
     help_msg
-    exit 0
+    exit 1
   fi
   target_dir="$1"
 else
@@ -54,7 +54,7 @@ then
   echo
   echo "Папки с категориями не существует!"
   help_msg
-  exit 0
+  exit 1
 fi
 
 excluded_tpl='0_!_*'
@@ -115,7 +115,7 @@ do
           # Проверка на битость
           if [ -r "${app_dir}/${BN}" ]
           then
-            echo "Встретилось, но уже есть: ${APPEAR}"
+            echo "Нашли, но уже есть: ${APPEAR}"
             continue
           else
             # TODO вот тут ещё перепроверить.
@@ -124,7 +124,7 @@ do
         fi
 
         ${action} "${APPEAR}" "${app_dir}/" \
-          && echo "Добавили ссылку на ${APPEAR}"
+          && echo "Добавили ссылку на: ${APPEAR}"
 
     done < <(echo "$appearancies")
 
