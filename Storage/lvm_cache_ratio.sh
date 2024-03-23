@@ -39,22 +39,13 @@ case $1 in
     done < <(echo "$volumes")
 ;;
 'about')				# О Скрипте
-  comment_brace=0
+  start=0;
 
-  while read LINE
-  do
-    if [[ "$LINE" == "#" ]] && [ $comment_brace -eq 0 ]      # Начало коммента
-    then
-      comment_brace=1
-      echo -e "\n  О скрипте\n"
-    elif [ "${LINE:16:21}" != 'haegor' ] && [ $comment_brace -eq 1 ]    # Текст коммента
-    then
-      echo "  ${LINE:2}"
-    elif [ "${LINE:16:21}" == 'haegor' ] && [ $comment_brace -eq 1 ]    # Закрытие
-    then
-      echo -e "  ${LINE:2}\n"
-      exit 0
-    fi
+# Никогда так не пишите.
+   while read LINE; do
+  ( [[ "$LINE" == "#" ]] && [ $start -eq 0 ] ) && { start=1; echo -e "\n  О скрипте\n"; } \
+  || { ( [ "${LINE:16:22}" != 'haegor' ] && [ $start -eq 1 ] ) && echo "  ${LINE:2}" \
+  || { ( [ "${LINE:16:22}" == 'haegor' ] && [ $start -eq 1 ] ) && { echo -e "  ${LINE:2}\n"; exit 0; } } }
   done < <(cat "$0")
 ;;
 '--help'|'-help'|'help'|'-h'|'')	# Автопомощь. Мы тут.

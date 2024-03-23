@@ -35,11 +35,11 @@ binary_rp=$(realpath "$binary") \
   || { echo "Невозможно определить реальный путь до $binary"; exit 0; }
 
 allIsSimple=$(dpkg -S "$binary_rp")
-if [ -n "$allIsSimple" ] 
+if [ -n "$allIsSimple" ]
 then
-	echo "Простой случай. Прямой поиск дал искомый пакет:"
-	echo "$allIsSimple"
-	exit 0
+  echo "Простой случай. Прямой поиск дал искомый пакет:"
+  echo "$allIsSimple"
+  exit 0
 fi
 
 # Вот тут мы достаём список ссылок на директории из пакета с файлами для рутовой партиции
@@ -52,7 +52,7 @@ done < <(sudo dpkg -L base-files)
 for link in ${linked_base_dirs[*]}
 do
   link_rp=$(realpath "$link")
-  
+
   bin_name=${binary_rp#"$link_rp"}	# Удаляем директорию
   bin_name=${bin_name:1}			# Удаляем /
 
