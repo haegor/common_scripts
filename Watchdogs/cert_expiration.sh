@@ -47,8 +47,8 @@ case $1 in
 # Никогда так не пишите.
   while read LINE; do
   ( [[ "$LINE" == "#" ]] && [ $start -eq 0 ] ) && { start=1; echo -e "\n  О скрипте\n"; } \
-  || { ( [ "${LINE:16:22}" != 'haegor' ] && [ $start -eq 1 ] ) && echo "  ${LINE:2}" \
-  || { ( [ "${LINE:16:22}" == 'haegor' ] && [ $start -eq 1 ] ) && { echo -e "  ${LINE:2}\n"; exit 0; } } }
+  || { ( [ "${LINE:17:23}" != 'haegor' ] && [ $start -eq 1 ] ) && echo "  ${LINE:2}" \
+  || { ( [ "${LINE:17:23}" == 'haegor' ] && [ $start -eq 1 ] ) && { echo -e "  ${LINE:2}\n"; exit 0; } } }
   done < <(cat "$0")
 ;;
 '--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
