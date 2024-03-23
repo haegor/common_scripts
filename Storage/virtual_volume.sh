@@ -48,11 +48,8 @@ case $1 in
 
   mounted_loop=$(${losetup} | grep "${volume_file}" | cut -f1 -d' ')
 
-  if [ "${mounted_loop}" ]
-  then
-      echo "Файл ${volume_file} уже был смонтирован"
-      exit 0
-  fi
+  [ "${mounted_loop}" ] \
+    && { echo "Файл ${volume_file} уже был смонтирован"; exit 0; }
 
   $0 attach "${volume_file}"
 ;;
@@ -70,18 +67,15 @@ case $1 in
 
   $0 umount
 
-  if [ "${loop_file}" ]
-  then
-    ${losetup} --detach "${loop_file}"
-  fi
+  [ -n "${loop_file}" ] && ${losetup} --detach "${loop_file}"
 ;;
 'mount')				# Примонтировать loop-устройство
   # TODO работу с параметрами. Возможность вызвать через другие части скрипта.
   ${mount} "${volume_file}" "${mount_point}"
 ;;
 'umount')				# Демонтировать loop-устройство
-  [ "${mount_point}" ] && ${umount} "${mount_point}"
-  [ "${volume_file}" ] && ${umount} "${volume_file}"
+  [ -n "${mount_point}" ] && ${umount} "${mount_point}"
+  [ -n "${volume_file}" ] && ${umount} "${volume_file}"
 ;;
 'look'|'ls')				# Осмотреться перед тем как что-то делать
   echo "=== Loop devices: =================================================================================="
@@ -93,7 +87,7 @@ case $1 in
   start=0;
 
 # Никогда так не пишите.
-   while read LINE; do
+  while read LINE; do
   ( [[ "$LINE" == "#" ]] && [ $start -eq 0 ] ) && { start=1; echo -e "\n  О скрипте\n"; } \
   || { ( [ "${LINE:11:17}" != 'haegor' ] && [ $start -eq 1 ] ) && echo "  ${LINE:2}" \
   || { ( [ "${LINE:11:17}" == 'haegor' ] && [ $start -eq 1 ] ) && { echo -e "  ${LINE:2}\n"; exit 0; } } }

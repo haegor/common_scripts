@@ -19,7 +19,7 @@
 # lrwxrwxrwx 1 root root 8 июл 28  2021 /sbin -> usr/sbin
 # haegor@vetinari:~/$ dpkg -S "/sbin/blockdev"
 # util-linux: /sbin/blockdev
-# 
+#
 # Т.е. для поиска пакета из которого был установлен bash больше нельзя
 # напрямую использовать which. Для исправления ситуации и написан сей скрипт.
 #
@@ -73,4 +73,3 @@ if [ ! "$job_is_done" == 'true' ]
 then
   echo "Среди ссылок пакета с базовыми файлами рутовой партиции ничего не найдено."
 fi
-

@@ -8,5 +8,3 @@
 ./virtual_volume.sh create
 sudo mkfs.ext4 /dev/loop1
 sudo mount /dev/loop1 /mnt/dev
-
-

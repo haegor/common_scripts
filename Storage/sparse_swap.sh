@@ -111,7 +111,7 @@ case $1 in
   start=0;
 
 # Никогда так не пишите.
-   while read LINE; do
+  while read LINE; do
   ( [[ "$LINE" == "#" ]] && [ $start -eq 0 ] ) && { start=1; echo -e "\n  О скрипте\n"; } \
   || { ( [ "${LINE:11:17}" != 'haegor' ] && [ $start -eq 1 ] ) && echo "  ${LINE:2}" \
   || { ( [ "${LINE:11:17}" == 'haegor' ] && [ $start -eq 1 ] ) && { echo -e "  ${LINE:2}\n"; exit 0; } } }
