@@ -40,9 +40,6 @@ f_find_mortice () {
 ### MAIN #######################################################################
 
 case $1 in
-'all')					# Создать raw-файл, подключить к loop устройству и смонтировать
-    echo 1
-;;
 'create')				# Создать raw-файл, подключить к loop устройству и смонтировать
   [ ! -f "${volume_file}" ] && dd if=/dev/zero of="${volume_file}" bs=1M count=${size} 2>/dev/null
 
