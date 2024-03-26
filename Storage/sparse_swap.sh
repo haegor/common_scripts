@@ -53,27 +53,27 @@ case $1 in
     [ -f "${volume_file}" ] && continue
 
     dd if=/dev/zero of="${volume_file}" bs=1M count=${volsize} && echo "----- dd completed"
-    ${losetup} "${loop_file}" "${volume_file}" && echo "----- losetup completed"
+    $losetup "${loop_file}" "${volume_file}" && echo "----- losetup completed"
 
     if [ ${i} -eq 1 ]
     then
-      ${pvcreate} "${loop_file}" && echo "----- pvcreate completed"
-      ${vgcreate} ${groupname} "${loop_file}" && echo "----- vgcreate completed"
+      $pvcreate "${loop_file}" && echo "----- pvcreate completed"
+      $vgcreate ${groupname} "${loop_file}" && echo "----- vgcreate completed"
     elif [ ${i} -lt ${volcount} ] && [ ${i} -gt 1 ]
     then
-      ${pvcreate} "${loop_file}" && echo "----- pvcreate competed"
-      ${vgextend} ${groupname} "${loop_file}" && echo "----- vgextend completed"
+      $pvcreate "${loop_file}" && echo "----- pvcreate competed"
+      $vgextend ${groupname} "${loop_file}" && echo "----- vgextend completed"
     elif [ ${i} -eq ${volcount} ]
     then
-      ${lvcreate} --type raid1 -l 100%FREE -n ${volumename} ${groupname} && echo "----- lvcreate completed"
-      ${vgextend} ${groupname} "${loop_file}" && echo "----- vgextend completed"
-      ${lvcreate} -n ${cachevol} -l 100%FREE ${groupname} ${loop_file} && echo "----- vgcreate-cache completed"
-      ${lvconvert} -y --type cache --cachesettings block_size=4096 --chunksize 1024 --cachepolicy smq --cachevol ${cachevol} ${groupname}/${volumename} && echo "----- lvconvert completed"
+      $lvcreate --type raid1 -l 100%FREE -n ${volumename} ${groupname} && echo "----- lvcreate completed"
+      $vgextend ${groupname} "${loop_file}" && echo "----- vgextend completed"
+      $lvcreate -n ${cachevol} -l 100%FREE ${groupname} ${loop_file} && echo "----- vgcreate-cache completed"
+      $lvconvert -y --type cache --cachesettings block_size=4096 --chunksize 1024 --cachepolicy smq --cachevol ${cachevol} ${groupname}/${volumename} && echo "----- lvconvert completed"
     fi
   done
 
-  ${mkswap} "${devmapper_file}"
-  ${swapon} "${devmapper_file}"
+  $mkswap "${devmapper_file}"
+  $swapon "${devmapper_file}"
 ;;
 'attach')				# TODO: Собрать logicalVolume из созданных ранее файлов
   echo empty
@@ -82,23 +82,25 @@ case $1 in
   inode=$(stat -L -c %i ${devmapper_file}) 		# без -L будет inode ссылки, которая тоже файл
   dm_file=$(sudo find /dev/ -maxdepth 1 -inum ${inode})
 
-  [ ! "$(${swapon} | grep ${dm_file})" == '' ] && ${swapoff} "${devmapper_file}" && echo "swapoff ${devmapper_file} прошёл успешно"
+  [ ! "$($swapon | grep ${dm_file})" == '' ] \
+    && $swapoff "${devmapper_file}" \
+    && echo "swapoff ${devmapper_file} прошёл успешно"
 
-  ${lvremove} ${groupname}/${volumename}
+  $lvremove ${groupname}/${volumename}
 ;;
 'detach')				# Отключить loop-устройства. Возможно только после удаления logicalVolume
   for i in `seq 0 ${volcount}`
   do
-    ${losetup} --detach /dev/loop${i}
+    $losetup --detach /dev/loop${i}
   done
 ;;
 'swapon')				# Подключить созданный диск как swap
-  ${mkswap} "${devmapper_file}"
-  ${swapon} "${devmapper_file}"
+  $mkswap "${devmapper_file}"
+  $swapon "${devmapper_file}"
 ;;
 'look'|'ls')				# Посмотреть что получилось
   echo "--- losetup ---"
-  ${losetup}
+  $losetup
 
   echo "--- LVS ---"
   sudo lvs 2>/dev/null | grep -P "${volumename}|LV"

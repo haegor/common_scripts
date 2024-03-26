@@ -40,23 +40,23 @@ case $1 in
     [ -f "${volume_file}" ] && continue
 
     dd if=/dev/zero of="${volume_file}" bs=1M count=${volsize} && echo "----- dd completed"
-    ${losetup} "${loop_file}" "${volume_file}" && echo "----- losetup completed"
+    $losetup "${loop_file}" "${volume_file}" && echo "----- losetup completed"
 
     if [ ${i} -eq 1 ]
     then
-      ${pvcreate} "${loop_file}" && echo "----- pvcreate completed"
-      ${vgcreate} ${groupname} "${loop_file}" && echo "----- vgcreate completed"
+      $pvcreate "${loop_file}" && echo "----- pvcreate completed"
+      $vgcreate ${groupname} "${loop_file}" && echo "----- vgcreate completed"
     else
-      ${pvcreate} "${loop_file}" && echo "----- pvcreate competed"
-      ${vgextend} ${groupname} "${loop_file}" && echo "----- vgextend completed"
+      $pvcreate "${loop_file}" && echo "----- pvcreate competed"
+      $vgextend ${groupname} "${loop_file}" && echo "----- vgextend completed"
     fi
   done
 ;;
-'attach')				# TODO: Собрать logicalVolume из созданных ранее файлов
+'attach')				# excluder TODO: Собрать logicalVolume из созданных ранее файлов
   echo empty
 ;;
 'remove'|'rm')				# Удалить logicalVolume
-  ${lvremove} ${groupname}/${volumename}
+  $lvremove ${groupname}/${volumename}
 ;;
 'detach')				# Отключить loop-устройства. Возможно только после удаления logicalVolume
   for i in `seq 0 ${volcount}`

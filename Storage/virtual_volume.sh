@@ -25,9 +25,9 @@ f_find_mortice () {
   for i in $(seq 0 7)
   do
     tested_loop="/dev/loop${i}"
-    cur=$(${losetup} | grep "${tested_loop}" | cut -f1 -d' ')
+    cur=$($losetup | grep "${tested_loop}" | cut -f1 -d' ')
 
-    if [ ! -n "${cur}" ]
+    if [ -z "${cur}" ]
     then
       first_empty="${tested_loop}"
       break
@@ -45,7 +45,7 @@ case $1 in
 
   mounted_loop=$(${losetup} | grep "${volume_file}" | cut -f1 -d' ')
 
-  [ "${mounted_loop}" ] \
+  [ -n "${mounted_loop}" ] \
     && { echo "Файл ${volume_file} уже был смонтирован"; exit 0; }
 
   $0 attach "${volume_file}"
@@ -53,7 +53,7 @@ case $1 in
 'attach')				# Подключить raw-файл к loop-устройству
   loop_mortice=$(f_find_mortice)
 
-  ${losetup} "${loop_mortice}" "${volume_file}"
+  $losetup "${loop_mortice}" "${volume_file}"
 
   echo ${loop_mortice}
 ;;
@@ -64,11 +64,12 @@ case $1 in
 
   $0 umount
 
-  [ -n "${loop_file}" ] && ${losetup} --detach "${loop_file}"
+  [ -n "${loop_file}" ] \
+    && ${losetup} --detach "${loop_file}"
 ;;
 'mount')				# Примонтировать loop-устройство
   # TODO работу с параметрами. Возможность вызвать через другие части скрипта.
-  ${mount} "${volume_file}" "${mount_point}"
+  $mount "${volume_file}" "${mount_point}"
 ;;
 'umount')				# Демонтировать loop-устройство
   [ -n "${mount_point}" ] && ${umount} "${mount_point}"
@@ -76,9 +77,9 @@ case $1 in
 ;;
 'look'|'ls')				# Осмотреться перед тем как что-то делать
   echo "=== Loop devices: =================================================================================="
-  ${losetup}
+  $losetup
   echo "=== Mount points: =================================================================================="
-  ${mount} | grep '/dev/loop'
+  $mount | grep '/dev/loop'
 ;;
 'about')				# О Скрипте
   start=0;

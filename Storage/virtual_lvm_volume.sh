@@ -24,22 +24,22 @@ case $1 in
 'create')				# Создать
   [ ! -f "${volume_file}" ] && dd if=/dev/zero of="${volume_file}" bs=1M count=${size}
 
-  already_looped_at=$(${losetup} | grep "${volume_file}" | cut -f1 -d' ')
+  already_looped_at=$($losetup | grep "${volume_file}" | cut -f1 -d' ')
   echo $already_looped_at
 
   [ ! "${already_looped_at}" == "${loop_file}" ] && ${losetup} "${loop_file}" "${volume_file}"
 
-  ${pvcreate} "${loop_file}"
-  ${vgcreate} "${groupname}" "${loop_file}"
-  ${lvcreate} -l 100%FREE -n "${volumename}" "${groupname}"
+  $pvcreate "${loop_file}"
+  $vgcreate "${groupname}" "${loop_file}"
+  $lvcreate -l 100%FREE -n "${volumename}" "${groupname}"
 ;;
 'detach')				# Отключить
 #  inode=$(stat -L -c %i ${devmapper_file})              # без -L будет inode ссылки, которая тоже файл
 #  dm_file=$(sudo find /dev/ -maxdepth 1 -inum ${inode})
 #  [ ! "$(${swapon}  | grep ${dm_file})" == '' ] && ${swapoff} "${devmapper_file}" && echo "swapoff ${devmapper_file} прошёл успешно"
 
-  ${lvremove} ${groupname}/${volumename}
-  ${losetup} --detach "${loop_file}"
+  $lvremove ${groupname}/${volumename}
+  $losetup --detach "${loop_file}"
 ;;
 'look'|'ls')				# Осмотреться
   echo "--- LVS ---"
