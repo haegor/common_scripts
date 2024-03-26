@@ -42,7 +42,7 @@ case $1 in
   [ ! -f "${volume_file}" ] \
     && dd if=/dev/zero of="${volume_file}" bs=1M count=${size} 2>/dev/null
 
-  mounted_loop=$(${losetup} | grep "${volume_file}" | cut -f1 -d' ')
+  mounted_loop=$($losetup | grep "${volume_file}" | cut -f1 -d' ')
 
   [ -n "${mounted_loop}" ] \
     && { echo "Файл ${volume_file} уже был смонтирован"; exit 0; }
@@ -59,20 +59,20 @@ case $1 in
 'detach')				# Отключить raw-файл от loop-устройству
   # TODO: проверку на смонтированность
 
-  loop_file=$(${losetup} | grep "${volume_file}" | cut -f1 -d' ')
+  loop_file=$($losetup | grep "${volume_file}" | cut -f1 -d' ')
 
   $0 umount
 
   [ -n "${loop_file}" ] \
-    && ${losetup} --detach "${loop_file}"
+    && $losetup --detach "${loop_file}"
 ;;
 'mount')				# Примонтировать loop-устройство
   # TODO работу с параметрами. Возможность вызвать через другие части скрипта.
   $mount "${volume_file}" "${mount_point}"
 ;;
 'umount')				# Демонтировать loop-устройство
-  [ -n "${mount_point}" ] && ${umount} "${mount_point}"
-  [ -n "${volume_file}" ] && ${umount} "${volume_file}"
+  [ -n "${mount_point}" ] && $umount "${mount_point}"
+  [ -n "${volume_file}" ] && $umount "${volume_file}"
 ;;
 'look'|'ls')				# Осмотреться перед тем как что-то делать
   echo "=== Loop devices: =================================================================================="

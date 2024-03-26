@@ -7,7 +7,7 @@
 # 2022,2024 (c) haegor
 #
 
-python_cmd="python3"
+python="python3"
 
 f_get () {
   reads=$(sudo lvdisplay "$1" 2>/dev/null | grep "Cache read hits/misses")
@@ -19,8 +19,8 @@ f_get () {
   write_hits=$(echo "${writes}" | awk '{print $4}')
   write_misses=$(echo "${writes}" | awk '{print $6}')
 
-  read_ratio=$($python_cmd -c "print (${read_hits}/(${read_hits} + ${read_misses}.))")
-  write_ratio=$($python_cmd -c "print (${write_hits}/(${write_hits} + ${write_misses}.))")
+  read_ratio=$($python -c "print (${read_hits}/(${read_hits} + ${read_misses}.))")
+  write_ratio=$($python -c "print (${write_hits}/(${write_hits} + ${write_misses}.))")
 
   echo "$1 read_ratio $read_ratio"
   echo "$1 write_ratio $write_ratio"
@@ -63,11 +63,7 @@ case $1 in
   exit 0
 ;;
 *)
-  if [ -z "$1" ]
-  then
-    $0 help
-    exit 0
-  fi
+  [ -z "$1" ] && { $0 help; exit 0; }
 
   echo "Подсчёт рациональности для: $1"
   f_get $1

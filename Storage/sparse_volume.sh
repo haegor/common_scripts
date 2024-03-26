@@ -66,7 +66,7 @@ case $1 in
 ;;
 'look'|'ls')				# Посмотреть что получилось
   echo "--- losetup ---"
-  ${losetup}
+  $losetup
 
   echo "--- LVS ---"
   sudo lvs 2>/dev/null | grep -P "${volumename}|LV"
