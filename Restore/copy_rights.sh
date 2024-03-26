@@ -23,6 +23,7 @@ f_save_settings () {
 
      echo "{rights} ${owner} ${group} ${file}" >> "${chosen_file}"
   done
+  return 0
 }
 
 f_restore_settings () {
@@ -54,6 +55,7 @@ f_restore_settings () {
 #       chmod ${rights} "${chosen_path}"/"${file}"
 #     fi
   done
+  return 0
 }
 
 
@@ -88,22 +90,19 @@ else
 fi
 
 case $mode in
-'save')				# Сохранение сведений о файлах
+'save')					# Сохранение сведений о файлах
   f_save_settings "${chosen_path}" "${chosen_file}"
   echo "Операция сохранения завершена."
-
 ;;
-'restore')			# Восстановление сведений о файлах
+'restore')				# Восстановление сведений о файлах
   f_restore_settings "${chosen_path}" "${chosen_file}"
   echo "Операция восстановления завершена."
 ;;
 '--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
   echo
 
-  if [ ${#reason[*]} -eq 0 ]
-  then
-      echo "Указан несуществующий режим работы скрипта."
-  fi
+  [ ${#reason[*]} -eq 0 ] \
+    && echo "Указан не существующий режим работы скрипта."
 
   for i in `seq 0 ${#reason[*]}`
   do

@@ -26,21 +26,25 @@ function f_enought () {
     $0 -help
     exit 0
   fi
+
+  return 0
 }
 
 # Если в пути последний символ - слеш, то отрезает его.
 function f_normalize_path () {
-    first=$1
-    first_len=${#1}
+  first=$1
+  first_len=${#1}
 
-    #D echo "path of ${first}, начиная с $first_len: ${first:${first_len}-1}"
+  #D echo "path of ${first}, начиная с $first_len: ${first:${first_len}-1}"
 
-    if [ "${first:${first_len}-1}" == '/' ]
-    then
-        echo ${first:0:${first_len}-1}
-    else
-        echo ${first}
-    fi
+  if [ "${first:${first_len}-1}" == '/' ]
+  then
+    echo ${first:0:${first_len}-1}
+  else
+    echo ${first}
+  fi
+
+  return 0
 }
 
 # Ищет ссылки, проверяет на битость и если найден всего 1 вариант - делает автозамену
@@ -77,6 +81,7 @@ function f_find_and_fix () {
       fi
     fi
   done
+  return 0
 }
 
 # Просто выводит битые ссылки в указанном каталоге
@@ -92,6 +97,7 @@ function f_find_and_report () {
       echo "Ссылается на: $(realpath ${LINE})"
     fi
   done
+  return 0
 }
 
 function f_truncate_link_name () {
@@ -105,6 +111,7 @@ function f_truncate_link_name () {
     local new_name="${dir_name}/${trunc_name}"
     $mv "${LINE}" "${new_name}"
   fi
+  return 0
 }
 
 # Убирает приписку "Ссылка на " из имён ссылок.
@@ -121,6 +128,7 @@ function f_remove_link_to () {
     # && [ -r "${LINE}" ]
     f_truncate_link_name "${LINE}"
   done
+  return 0
 }
 
 ######################### MAIN #########################
@@ -146,8 +154,8 @@ case $1 in
     result=$(realpath "${LINK}" &>/dev/null && echo 0 || echo 1)
     if [ ${result} ]
     then
-        echo "BROKEN ${LINK}"
-        ls -la "${LINK}"
+      echo "BROKEN ${LINK}"
+      ls -la "${LINK}"
     fi
   done
 ;;

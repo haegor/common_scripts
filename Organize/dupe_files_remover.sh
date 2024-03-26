@@ -38,4 +38,3 @@ do
   fi
 
 done < <(echo -e "$files_with_md5" | sort)
-

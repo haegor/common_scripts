@@ -45,4 +45,3 @@ for path, dirs, files in os.walk(walking_dir):
         subprocess.call(['/usr/bin/git', 'pull'])
         print ('updated: ' + path + '===========================================================' )
         continue
-

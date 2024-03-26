@@ -94,12 +94,13 @@ do
     #D echo "escaped name: -- ${name_escaped} --"
 
     # Без учёта регистра, ищем в целевой папке файл по созданому шаблону, не являющийся jpeg или part, исключая директорию самой категории.
+    # TODO: может написать свой обход? Штука простая, а будет гибче.
     appearancies=''
     appearancies=$(find "${target_dir}/" -type f \( -iname "${tpl}" -a -not \( -iname "*.jpg" -o -iname "*.part" \) \)  -a ! -path "${categories_dir}/${LINE}/*")
 
 #    [ $count -eq 20 ] && break || let count=${count}+1		# Ограничитель. Для отладки
 
-    [ ! -n "${appearancies}" ] && continue			# Нигде не встретилось
+    [ -z "${appearancies}" ] && continue			# Нигде не встретилось
 
     app_dir="${categories_dir}/${LINE}/${app_subdir}"		# Куда складываем ссылки
     [ ! -d "${app_dir}" ] && mkdir -p "${app_dir}"
@@ -131,4 +132,3 @@ do
     echo
 
 done < <(echo "${categories_list}")
-
