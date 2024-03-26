@@ -27,21 +27,20 @@ f_find_mortice () {
     tested_loop="/dev/loop${i}"
     cur=$($losetup | grep "${tested_loop}" | cut -f1 -d' ')
 
-    if [ -z "${cur}" ]
-    then
-      first_empty="${tested_loop}"
-      break
-    fi
+    [ -z "${cur}" ] \
+      && { first_empty="${tested_loop}"; break; }
   done
 
   echo "${first_empty}"
+  return 0
 }
 
 ### MAIN #######################################################################
 
 case $1 in
 'create')				# Создать raw-файл, подключить к loop устройству и смонтировать
-  [ ! -f "${volume_file}" ] && dd if=/dev/zero of="${volume_file}" bs=1M count=${size} 2>/dev/null
+  [ ! -f "${volume_file}" ] \
+    && dd if=/dev/zero of="${volume_file}" bs=1M count=${size} 2>/dev/null
 
   mounted_loop=$(${losetup} | grep "${volume_file}" | cut -f1 -d' ')
 

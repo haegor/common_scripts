@@ -44,10 +44,10 @@ case $1 in
 
     if [ ${i} -eq 1 ]
     then
-      $pvcreate "${loop_file}" && echo "----- pvcreate completed"
+      $pvcreate "${loop_file}"              && echo "----- pvcreate completed"
       $vgcreate ${groupname} "${loop_file}" && echo "----- vgcreate completed"
     else
-      $pvcreate "${loop_file}" && echo "----- pvcreate competed"
+      $pvcreate "${loop_file}"              && echo "----- pvcreate competed"
       $vgextend ${groupname} "${loop_file}" && echo "----- vgextend completed"
     fi
   done
@@ -61,7 +61,7 @@ case $1 in
 'detach')				# Отключить loop-устройства. Возможно только после удаления logicalVolume
   for i in `seq 0 ${volcount}`
   do
-    ${losetup} --detach /dev/loop${i}
+    $losetup --detach /dev/loop${i}
   done
 ;;
 'look'|'ls')				# Посмотреть что получилось

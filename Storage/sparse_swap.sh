@@ -57,18 +57,19 @@ case $1 in
 
     if [ ${i} -eq 1 ]
     then
-      $pvcreate "${loop_file}" && echo "----- pvcreate completed"
+      $pvcreate "${loop_file}"              && echo "----- pvcreate completed"
       $vgcreate ${groupname} "${loop_file}" && echo "----- vgcreate completed"
     elif [ ${i} -lt ${volcount} ] && [ ${i} -gt 1 ]
     then
-      $pvcreate "${loop_file}" && echo "----- pvcreate competed"
+      $pvcreate "${loop_file}"              && echo "----- pvcreate competed"
       $vgextend ${groupname} "${loop_file}" && echo "----- vgextend completed"
     elif [ ${i} -eq ${volcount} ]
     then
       $lvcreate --type raid1 -l 100%FREE -n ${volumename} ${groupname} && echo "----- lvcreate completed"
-      $vgextend ${groupname} "${loop_file}" && echo "----- vgextend completed"
-      $lvcreate -n ${cachevol} -l 100%FREE ${groupname} ${loop_file} && echo "----- vgcreate-cache completed"
-      $lvconvert -y --type cache --cachesettings block_size=4096 --chunksize 1024 --cachepolicy smq --cachevol ${cachevol} ${groupname}/${volumename} && echo "----- lvconvert completed"
+      $vgextend ${groupname} "${loop_file}"                            && echo "----- vgextend completed"
+      $lvcreate -n ${cachevol} -l 100%FREE ${groupname} ${loop_file}   && echo "----- vgcreate-cache completed"
+      $lvconvert -y --type cache --cachesettings block_size=4096 --chunksize 1024 --cachepolicy smq --cachevol ${cachevol} ${groupname}/${volumename} \
+        && echo "----- lvconvert completed"
     fi
   done
 

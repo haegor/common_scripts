@@ -2,13 +2,18 @@
 #
 # Скрипт полуавтоматической миграции с microsd на 1Tb nvme с созданием lvm для
 # Raspberry Pi 4B.
+# Подразумевает запуск под root.
 #
 # 2024 (c) haegor
 #
+# TODO дописать sudo составляющую.
+#
 
 # Ручник.
-echo "Скрипт может нанести непоправимые повреждения данным"
+echo "ВАЖНО: Скрипт может нанести непоправимые повреждения данным !!!!"
 echo "Сначала посмотрите его и лишь потом снимайте с ручника."
+echo "DANGER! SCRIPT CAN HARM YOUR DATA !!!!"
+echo "Remove hand-brake only after you check it first !!!!"
 exit 0
 
 # TODO Надо ещё сделать прописывание в /boot/firmware/config.txt
@@ -34,6 +39,7 @@ f_write2fstab () {
   local isInFSTAB=$(cat /etc/fstab | grep ^UUID=\"$uuid\")
   [ -z "$isInFSTAB" ] \
     && echo -e "UUID=\"$uuid\" $tail" >> "/etc/fstab"
+  return 0
 }
 
 f_get_vol_uuid () {
@@ -45,6 +51,7 @@ f_get_vol_uuid () {
   local uuid=${cut_uuid:1:-1}
 
   [ -z "$uuid" ] && return 1 || echo $uuid
+  return 0
 }
 
 case $1 in
@@ -156,9 +163,9 @@ case $1 in
   [ -d "/mnt/boot/firmware" ] && mkdir -p /mnt/boot/firmware \
     || { echo "Нельзя создать папку под будущую boot партицию."; exit 1; }
 
-  mount -t ext4 ${disk_name}2 /mnt/boot 2> /dev/null || exit 1
+  mount -t ext4 ${disk_name}2 /mnt/boot 2> /dev/null         || exit 1
   mount -t vfat ${disk_name}1 /mnt/boot/firmware 2>/dev/null || exit 1
-  mount -t ext4 ${disk_name}3 /mnt/root 2>/dev/null || exit 1
+  mount -t ext4 ${disk_name}3 /mnt/root 2>/dev/null          || exit 1
 
   echo "Rsync of firmware"
   rsync -arx /boot/firmware/ /mnt/boot/firmware/ || exit 1

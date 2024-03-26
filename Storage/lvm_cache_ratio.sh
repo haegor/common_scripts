@@ -24,6 +24,7 @@ f_get () {
 
   echo "$1 read_ratio $read_ratio"
   echo "$1 write_ratio $write_ratio"
+  return 0
 }
 
 case $1 in
@@ -62,7 +63,7 @@ case $1 in
   exit 0
 ;;
 *)
-  if [ ! "$1" ]
+  if [ -z "$1" ]
   then
     $0 help
     exit 0
