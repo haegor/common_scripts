@@ -4,9 +4,23 @@
 # параметр
 #
 
-cat $1 | while read A
+log_dir='/tmp'
+bkp_dir='/var/backup'
+
+[ -z "$1" ] && {
+  echo "Параметр не был задан".
+  exit 1
+}
+
+[ -f "$1" ] && {
+  echo "Указан несуществующий файл."
+  exit 1
+}
+
+cat $1 | grep -v '^#' | while read mailbox
 do
-    echo $A
-    (nohup /opt/zimbra/bin/zmmailbox -z -m $A getRestURL "//?fmt=tgz" > $A.tgz echo 'Done')  >> /tmp/$A.log 2>&1
+    echo "Обрабатывается $mailbox"
+    # TODO Не помню как работает этот echo 'Done', толи это часть команды zmmailbox, толи забыт &&
+    (nohup /opt/zimbra/bin/zmmailbox -z -m $mailbox getRestURL "//?fmt=tgz" > $bkp_dir/$mailbox.tgz echo 'Done')  >> $log_dir/$mailbox.log 2>&1
     sleep 100
 done
