@@ -2,21 +2,19 @@
 #
 # Скрипт для массового исправления битых ссылок, появляющихся при перемещении каталогов.
 #
-# 2023 (c) haegor
+# 2023-2024 (c) haegor
 #
 
-#rm='echo rm'
-#ln='echo ln'
-#mv='echo mv'
-rm='rm'
-ln='ln'
-mv='mv'
+debug='false'
+[ $debug == 'true' ] \
+  && { set -x; rm='echo rm'; ln='echo ln'; mv='echo mv'; } \
+  || { set -; rm='rm'; ln='ln'; mv='mv'; }
 
 # Проверяет достаточно ли аргументов.
 # Функция сомнительной полезности. Планировалась под вывод хелпа.
 function f_enought () {
-  param_count=$1
-  need_count=$2
+  local param_count="$1"
+  local need_count="$2"
 
   if [ ${param_count} -ne ${need_count} ]
   then
@@ -32,132 +30,101 @@ function f_enought () {
 
 # Если в пути последний символ - слеш, то отрезает его.
 function f_normalize_path () {
-  first=$1
-  first_len=${#1}
+  local path_name="$1"
+  local path_name_len=${#1}
 
-  #D echo "path of ${first}, начиная с $first_len: ${first:${first_len}-1}"
+  #D echo "path of ${path_name}, начиная с $path_name_len: ${path_name:${path_name_len}-1}"
 
-  if [ "${first:${first_len}-1}" == '/' ]
-  then
-    echo ${first:0:${first_len}-1}
-  else
-    echo ${first}
-  fi
+  [ "${path_name:${path_name_len}-1}" == '/' ] \
+    && echo ${path_name:0:${path_name_len}-1} \
+    || echo ${path_name}
 
   return 0
 }
 
 # Ищет ссылки, проверяет на битость и если найден всего 1 вариант - делает автозамену
 function f_find_and_fix () {
-  analyzed_dir=$(normalize_path "$1")
-  analyzed_dir_len=${#analyzed_dir}
-  storage_dir=$(normalize_path "$2")
+  local analyzed_dir=$(f_normalize_path "$1")
+  local analyzed_dir_len=${#analyzed_dir}
+  local storage_dir=$(f_normalize_path "$2")
 
-  find -H "${analyzed_dir}" -maxdepth 1 -type l -print | while read LINE
+  find -H "${analyzed_dir}" -maxdepth 1 -type l -print | while read LINK
   do
-    if [ -h "${LINE}" ] && [ ! -r "${LINE}" ]
+    if [ -h "${LINK}" ] && [ ! -r "${LINK}" ]
     then
       echo "-----------------------------------"
-      echo "Битая ссылка на ${LINE}"
+      echo "Битая ссылка на ${LINK}"
 
-      filename=${LINE:${analyzed_dir_len}+1}
+      filename=${LINK:${analyzed_dir_len}+1}
       echo "Имя файла: ${filename}"
 
       founded=$(find "${storage_dir}" -not -path "${analyzed_dir}/*" -type f -name "${filename}" -print -quit )
-      if [ "${founded}" == '' ]
-      then
+      [ -z "${founded}" ] && {
          echo "Вариантов не найдено"
          continue
-      else
-         echo "Нaйден: ${founded}"
-      fi
+      }
 
       # TODO: проверить на поведение при нескольких найденных вариантах и вариантах с пробелами
-      if [ $(echo ${founded} | wc -l) -eq 1 ]
-      # && [ ! "${founded}" == '' ] - пустые варианты мы убрали на стадии отображения предварительных результатов
+      founded_count=$(echo "${founded}" | wc -l)
+      if [ $founded_count -eq 1 ]
       then
+        echo "Нaйден: ${founded}"
         $rm "${analyzed_dir}/${filename}"
         $ln -s "${founded}" "${analyzed_dir}/"
+      else
+        # Пустые и единичные варианты уже отсеяли, значит может быть только >1
+        echo "Слишком много вариантов. Не знаю что выбрать из:"
+        for i in "${founded}"
+        do
+          echo "${i}"
+        done
+
+        return 1
       fi
     fi
   done
+
   return 0
 }
 
 # Просто выводит битые ссылки в указанном каталоге
 function f_find_and_report () {
-  analyzed_dir=$1
+  local analyzed_dir="$1"
 
-  find -H "${analyzed_dir}" -type l -print | while read LINE
+  find -H "${analyzed_dir}" -type l -print | while read LINK
   do
-    if [ -h "${LINE}" ] && [ ! -r "${LINE}" ]
+    if [ -h "${LINK}" ] && [ ! -r "${LINK}" ]
     then
       echo "-------------"
-      echo "Битая ссылка: ${LINE}"
-      echo "Ссылается на: $(realpath ${LINE})"
+      echo "Битая ссылка: ${LINK}"
+      local link_to=$(readlink "${LINK}" || echo 'а никуда она не ссылается...')
+      echo "Ссылается на: $link_to"
     fi
   done
-  return 0
-}
 
-function f_truncate_link_name () {
-  local LINE="$1"
-
-  if [ -L "${LINE}" ] &&  [[ "${LINE}" =~ 'Ссылка на ' ]]
-  then
-    local base_name=$(basename "${LINE}")
-    local dir_name=$(dirname "${LINE}")
-    local trunc_name=${base_name:10}
-    local new_name="${dir_name}/${trunc_name}"
-    $mv "${LINE}" "${new_name}"
-  fi
-  return 0
-}
-
-# Убирает приписку "Ссылка на " из имён ссылок.
-function f_remove_link_to () {
-  analyzed_dir=$1
-
-  # В случае если нам указали на конкретный файл. Для запуска из скрипта
-  LINE="${analyzed_dir}"
-  f_truncate_link_name "${LINE}"
-
-  # Это на случай когда указана директория.
-  find -H "${analyzed_dir}" -type l -print | while read LINE
-  do
-    # && [ -r "${LINE}" ]
-    f_truncate_link_name "${LINE}"
-  done
   return 0
 }
 
 ######################### MAIN #########################
 case $1 in
 'fix')					# Найти битые ссылки в папке1 и заменить их на похожие имена в папке2
-  f_enought $# 3
+  f_enought $# 3 || exit 1
+  [ ! -d "$2" ] \
+    && { echo "Указанный аргумент($2) не является папкой. Останов."; exit 1; }
+  [ ! -d "$3" ] \
+    && { echo "Указанный аргумент($3) не является папкой. Останов."; exit 1; }
+
   f_find_and_fix "$2" "$3"
 ;;
 'find')					# Поиск битых ссылок в указанной папке
-  f_enought $# 2
+  f_enought $# 2 || exit 1
+  [ ! -d "$2" ] \
+    && { echo "Указанный аргумент не является папкой. Останов."; exit 1; }
+
   f_find_and_report "$2"
-;;
-'remove_link_to')			# убрать фразу "Ссылка на" у всех ссылок в директории
-  f_enought $# 2
-  f_remove_link_to "$2"
 ;;
 'test')					# excluder
   f_normalize_path "$2"
-;;
-'fix_links_script')			# не помню что и зачем.
-  find . -type l | while read LINK
-  do
-    result=$(realpath "${LINK}" &>/dev/null && echo 0 || echo 1)
-    if [ ${result} ]
-    then
-      echo "BROKEN ${LINK}"
-      ls -la "${LINK}"
-    fi
-  done
 ;;
 'about')				# О Скрипте
   start=0;
@@ -165,8 +132,8 @@ case $1 in
 # Никогда так не пишите.
   while read LINE; do
   ( [[ "$LINE" == "#" ]] && [ $start -eq 0 ] ) && { start=1; echo -e "\n  О скрипте\n"; } \
-  || { ( [ "${LINE:11:17}" != 'haegor' ] && [ $start -eq 1 ] ) && echo "  ${LINE:2}" \
-  || { ( [ "${LINE:11:17}" == 'haegor' ] && [ $start -eq 1 ] ) && { echo -e "  ${LINE:2}\n"; exit 0; } } }
+  || { ( [ "${LINE:16:22}" != 'haegor' ] && [ $start -eq 1 ] ) && echo "  ${LINE:2}" \
+  || { ( [ "${LINE:16:22}" == 'haegor' ] && [ $start -eq 1 ] ) && { echo -e "  ${LINE:2}\n"; exit 0; } } }
   done < <(cat "$0")
 ;;
 '--help'|'-help'|'help'|'-h'|*|'')	# Автопомощь. Мы тут.
